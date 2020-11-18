@@ -24,6 +24,8 @@ class Admin {
 		add_action( 'admin_post_shop1-connect-response', [ __CLASS__, 'shop1_connect_response' ] );
 		add_action( 'admin_post_nopriv_shop1-connect-response', [ __CLASS__, 'shop1_connect_response' ] );
 
+		add_action( 'wp_ajax_shop1-test-connection', [ __CLASS__, 'shop1_test_connection' ] );
+
 		add_action( 'wp_ajax_shop1-product-added', [ __CLASS__, 'shop1_product_added' ] );
 		add_action( 'wp_ajax_nopriv_shop1-product-added', [ __CLASS__, 'shop1_product_added' ] );
 
@@ -98,13 +100,14 @@ class Admin {
 			$args       = [
 				'shop_name'           => get_bloginfo( 'name' ),
 				'platform'            => 'WordPress/WooCommerce',
+				'platform_url'        => home_url(),
 				'scopes'              => 'read,write',
 				'redirect_url'        => admin_url( 'admin-post.php?action=shop1-connect-response' ),
 				'state'               => $identifier,
 				'product_webhook_url' => admin_url( 'admin-ajax.php?action=shop1-product-added' ),
 				'order_webhook_url'   => admin_url( 'admin-ajax.php?action=shop1-order-added' ),
 			];
-			self::log_to_db( 'shop1_connect', $identifier, $args );
+			self::log_to_db( 'shop1_connect_request', $identifier, $args );
 			wp_redirect( add_query_arg( $args, self::SHOP1_CONNECT_URL ) );
 			exit;
 		} else {
@@ -117,26 +120,64 @@ class Admin {
 
 		return $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}wc_shop1_log WHERE identifier = %s"
-			),
-			$identifier
+				"SELECT id FROM {$wpdb->prefix}wc_shop1_log
+                WHERE type = 'shop1_connect_request' AND identifier = %s",
+				$identifier
+			)
 		);
 	}
 
 	public static function shop1_connect_response() {
-		if ( isset( $_POST['nonce'] ) && self::verify_identifier( $_POST['nonce'] )
-		     && ! empty( $_POST['user_email'] )
-		     && ! empty( $_POST['api_key'] )
+		if ( isset( $_GET['state'] ) && self::verify_identifier( $_GET['state'] )
+		     && ! empty( $_GET['user_email'] )
+		     && ! empty( $_GET['api_key'] )
 		) {
-			update_option( self::SHOP1_API_KEY_OPTION, [
-				'api_key'    => $_POST['api_key'],
-				'user_email' => $_POST['user_email'],
-			] );
-			wp_redirect( admin_url( '?page=' . self::CONFIGURATIONS_SUBMENU_SLUG ) );
+			$data = [
+				'api_key'    => $_GET['api_key'],
+				'user_email' => $_GET['user_email'],
+				'identifier' => $_GET['state'],
+			];
+			update_option( self::SHOP1_API_KEY_OPTION, $data );
+			self::log_to_db( 'shop1_connect_response', $_GET['state'], $data );
+			wp_redirect( admin_url( 'admin.php?page=' . self::CONFIGURATIONS_SUBMENU_SLUG ) );
 			exit;
 		} else {
 			wp_die( 'Invalid or malformed request.' );
 		}
+	}
+
+	public static function shop1_test_connection() {
+		$api_key_data = (array) get_option( self::SHOP1_API_KEY_OPTION, [] );
+		if ( empty( $api_key_data ) ) {
+			wp_send_json_success( [
+				'code'    => 'not_authenticated',
+				'message' => __( 'Not authenticated.', 'wc-shop1' ),
+			] );
+		}
+		$response = wp_remote_get( add_query_arg( [
+			'api_key'  => $api_key_data['api_key'],
+			'state'    => $api_key_data['identifier'],
+			'platform' => 'WordPress/WooCommerce',
+		], 'https://admin.shop1.com/api/stores/third-party/isconnect' ), [
+			'headers' => [
+				'Content-Type' => 'application/json',
+				'Accept'       => 'application/json',
+			],
+		] );
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( $response );
+		}
+		if ( 200 === $response['response']['code'] ) {
+			$body = json_decode( $response['body'] );
+			if ( $body && true === $body->success && $api_key_data['identifier'] === $body->state ) {
+				wp_send_json_success( [
+					'code'       => 'verified_successfully',
+					'user_email' => $api_key_data['user_email'],
+					'message'    => $body->success_message
+				] );
+			}
+		}
+		wp_send_json_error();
 	}
 
 	public static function shop1_order_added() {

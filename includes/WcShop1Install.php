@@ -5,7 +5,7 @@ namespace WcShop1;
 
 
 class WcShop1Install {
-	const DB_VERSION = '0.0.2';
+	const DB_VERSION = '0.0.5';
 
 	const ACTIVATION_TRANSIENT = 'wc-shop1_activating';
 	const DB_VERSION_OPTION = 'wc-shop1_db_version';
@@ -38,13 +38,14 @@ class WcShop1Install {
 
 		$tables = "
 CREATE TABLE {$wpdb->prefix}wc_shop1_log (
-	id bigint PRIMARY KEY,
+	id bigint unsigned NOT NULL auto_increment,
 	user_id bigint NOT NULL default 0,
 	type varchar(64) NOT NULL,
-	identifier varchar(64),
+	identifier varchar(64) NOT NULL,
 	payload text,
 	created_at timestamp,
-	UNIQUE KEY identifier (identifier),
+	PRIMARY KEY  (id),
+	KEY identifier (identifier),
 	KEY user_id (user_id)
 ) $collate;";
 
