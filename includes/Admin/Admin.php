@@ -14,6 +14,8 @@ class Admin {
 	const SHOP1_CATALOG_URL = 'https://admin.shop1.com/marketplace/catalog/grid';
 	const SHOP1_CONNECT_URL = 'https://admin.shop1.com/stores/third-party/connect';
 
+	private static $api_key_data;
+
 	public static function init_hooks() {
 		add_action( 'admin_menu', [ __CLASS__, 'shop1_admin_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
@@ -23,6 +25,8 @@ class Admin {
 
 		add_action( 'admin_post_shop1-connect-response', [ __CLASS__, 'shop1_connect_response' ] );
 		add_action( 'admin_post_nopriv_shop1-connect-response', [ __CLASS__, 'shop1_connect_response' ] );
+
+		add_action( 'wp_ajax_shop1-disconnect', [ __CLASS__, 'shop1_disconnect' ] );
 
 		add_action( 'wp_ajax_shop1-test-connection', [ __CLASS__, 'shop1_test_connection' ] );
 
@@ -146,8 +150,44 @@ class Admin {
 		}
 	}
 
+	private static function get_api_key_data() {
+		if ( empty( self::$api_key_data ) ) {
+			self::$api_key_data = (array) get_option( self::SHOP1_API_KEY_OPTION, [] );
+		}
+
+		return self::$api_key_data;
+	}
+
+	private static function remove_api_key_data() {
+		delete_option( self::SHOP1_API_KEY_OPTION );
+		self::$api_key_data = null;
+	}
+
+	public static function shop1_disconnect() {
+		$api_key_data = self::get_api_key_data();
+		if ( empty( $api_key_data ) ) {
+			wp_send_json_error();
+		}
+		$response = wp_remote_post( add_query_arg( [
+			'state'    => $api_key_data['identifier'],
+			'platform' => 'WordPress/WooCommerce',
+			'api_key'  => $api_key_data['api_key'],
+		], 'https://admin.shop1.com/api/stores/third-party/disconnect' ) );
+		if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
+			$body = json_decode( $response['body'] );
+			if ( true === $body->success && $api_key_data['identifier'] === $body->state ) {
+				self::remove_api_key_data();
+				wp_send_json_success( [
+					'code'    => 'disconnected',
+					'message' => __( 'Disconnected successfully.', 'wc-shop1' ),
+				] );
+			}
+		}
+		wp_send_json_error();
+	}
+
 	public static function shop1_test_connection() {
-		$api_key_data = (array) get_option( self::SHOP1_API_KEY_OPTION, [] );
+		$api_key_data = self::get_api_key_data();
 		if ( empty( $api_key_data ) ) {
 			wp_send_json_success( [
 				'code'    => 'not_authenticated',
@@ -164,10 +204,7 @@ class Admin {
 				'Accept'       => 'application/json',
 			],
 		] );
-		if ( is_wp_error( $response ) ) {
-			wp_send_json_error( $response );
-		}
-		if ( 200 === $response['response']['code'] ) {
+		if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
 			$body = json_decode( $response['body'] );
 			if ( $body && true === $body->success && $api_key_data['identifier'] === $body->state ) {
 				wp_send_json_success( [

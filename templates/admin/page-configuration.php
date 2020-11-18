@@ -4,11 +4,12 @@ if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( "You're not allowed to access this page." );
 }
 
-$shop1_logo     = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_FILE );
+$shop1_logo = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_FILE );
 ?>
 
 <div class="wrap wc-shop1-configuration-container">
-    <img class="shop1-logo" src="<?php echo $shop1_logo; ?>" alt="shop1 logo" width="120">
+    <img class="shop1-logo" src="<?php echo $shop1_logo; ?>" alt="shop1 logo"
+         width="120">
     <section class="not-connected" style="display: none;">
         <p>
 			<?php
@@ -30,7 +31,13 @@ $shop1_logo     = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_
     <section class="testing">
         <span class="spinner is-active"></span>
         <p>
-            <?php _e( 'Testing connection to Shop1 servers...', 'wc-shop1' ); ?>
+			<?php _e( 'Testing connection to Shop1 servers...', 'wc-shop1' ); ?>
+        </p>
+        <p class="error" style="display: none;">
+			<?php _e( 'Failed to test the connection.' ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=' . \WcShop1\Admin\Admin::CONFIGURATIONS_SUBMENU_SLUG ); ?>">
+				<?php _e( 'Reload', 'wc-shop1' ); ?>
+            </a>
         </p>
     </section>
     <section class="connected" style="display: none;">
@@ -59,5 +66,9 @@ $shop1_logo     = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_
 
     .testing p {
         margin-left: 1em;
+    }
+
+    .wc-shop1-configuration-container p.error {
+        color: #aa0000;
     }
 </style>
