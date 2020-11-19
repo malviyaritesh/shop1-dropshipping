@@ -23,6 +23,7 @@ final class WcShop1 {
 
 	private function init_hooks() {
 		register_activation_hook( WC_SHOP1_PLUGIN_FILE, [ WcShop1Install::class, 'activate' ] );
+		register_uninstall_hook( WC_SHOP1_PLUGIN_FILE, [ WcShop1Install::class, 'uninstall' ] );
 		Admin::init_hooks();
 	}
 }

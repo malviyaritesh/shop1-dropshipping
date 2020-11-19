@@ -4,6 +4,8 @@
 namespace WcShop1;
 
 
+use WcShop1\Admin\Admin;
+
 class WcShop1Install {
 	const DB_VERSION = '0.0.5';
 
@@ -18,6 +20,11 @@ class WcShop1Install {
 		set_transient( self::ACTIVATION_TRANSIENT, 'yes', MINUTE_IN_SECONDS * 10 );
 		self::create_tables();
 		delete_transient( self::ACTIVATION_TRANSIENT );
+	}
+
+	public static function uninstall() {
+		Admin::remove_api_key_data();
+		delete_option( self::DB_VERSION_OPTION );
 	}
 
 	private static function create_tables() {

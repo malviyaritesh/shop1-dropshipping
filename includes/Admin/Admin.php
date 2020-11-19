@@ -4,6 +4,8 @@
 namespace WcShop1\Admin;
 
 
+use Automattic\WooCommerce\RestApi\Utilities\ImageAttachment;
+
 class Admin {
 
 	const SHOP1_API_KEY_OPTION = 'wc_shop1_api_key';
@@ -30,11 +32,11 @@ class Admin {
 
 		add_action( 'wp_ajax_shop1-test-connection', [ __CLASS__, 'shop1_test_connection' ] );
 
-		add_action( 'wp_ajax_shop1-product-added', [ __CLASS__, 'shop1_product_added' ] );
-		add_action( 'wp_ajax_nopriv_shop1-product-added', [ __CLASS__, 'shop1_product_added' ] );
+		add_action( 'wp_ajax_shop1-product-hook', [ __CLASS__, 'shop1_product_hook' ] );
+		add_action( 'wp_ajax_nopriv_shop1-product-hook', [ __CLASS__, 'shop1_product_hook' ] );
 
-		add_action( 'wp_ajax_shop1-order-added', [ __CLASS__, 'shop1_order_added' ] );
-		add_action( 'wp_ajax_nopriv_shop1-order-added', [ __CLASS__, 'shop1_order_added' ] );
+		add_action( 'wp_ajax_shop1-order-hook', [ __CLASS__, 'shop1_order_hook' ] );
+		add_action( 'wp_ajax_nopriv_shop1-order-hook', [ __CLASS__, 'shop1_order_hook' ] );
 	}
 
 	public static function enqueue_scripts( $hook_suffix ) {
@@ -108,8 +110,8 @@ class Admin {
 				'scopes'              => 'read,write',
 				'redirect_url'        => admin_url( 'admin-post.php?action=shop1-connect-response' ),
 				'state'               => $identifier,
-				'product_webhook_url' => admin_url( 'admin-ajax.php?action=shop1-product-added' ),
-				'order_webhook_url'   => admin_url( 'admin-ajax.php?action=shop1-order-added' ),
+				'product_webhook_url' => admin_url( 'admin-ajax.php?action=shop1-product-hook' ),
+				'order_webhook_url'   => admin_url( 'admin-ajax.php?action=shop1-order-hook' ),
 			];
 			self::log_to_db( 'shop1_connect_request', $identifier, $args );
 			wp_redirect( add_query_arg( $args, self::SHOP1_CONNECT_URL ) );
@@ -158,7 +160,7 @@ class Admin {
 		return self::$api_key_data;
 	}
 
-	private static function remove_api_key_data() {
+	public static function remove_api_key_data() {
 		delete_option( self::SHOP1_API_KEY_OPTION );
 		self::$api_key_data = null;
 	}
@@ -177,6 +179,7 @@ class Admin {
 			$body = json_decode( $response['body'] );
 			if ( true === $body->success && $api_key_data['identifier'] === $body->state ) {
 				self::remove_api_key_data();
+				self::log_to_db( 'shop1_disconnect_response', $api_key_data['identifier'], $body );
 				wp_send_json_success( [
 					'code'    => 'disconnected',
 					'message' => __( 'Disconnected successfully.', 'wc-shop1' ),
@@ -217,11 +220,98 @@ class Admin {
 		wp_send_json_error();
 	}
 
-	public static function shop1_order_added() {
+	public static function shop1_order_hook() {
 		// Todo
 	}
 
-	public static function shop1_product_added() {
-		// Todo
+	private static function parse_and_verify_json_body() {
+		$output   = null;
+		$json_str = file_get_contents( 'php://input' );
+		if ( strlen( $json_str ) > 0 ) {
+			$body = json_decode( $json_str, true );
+			if ( is_array( $body ) && isset( $body['state'], $body['action'], $body['api_key'] ) ) {
+				$api_key_data = self::get_api_key_data();
+				if ( ! empty( $api_key_data ) && $api_key_data['api_key'] === $body['api_key'] ) {
+					return $body;
+				}
+
+				return new \WP_Error( 'authentication_failed', __( 'Failed to verify the authenticity of the request.' ) );
+			}
+		}
+
+		return new \WP_Error( 'invalid_json', __( 'Missing or invalid JSON body.' ) );
+	}
+
+	private static function insert_products( $products ) {
+		$errors = [];
+		foreach ( $products as $product ) {
+			$wc_product = new \WC_Product();
+			try {
+				$wc_product->set_sku( $product['SKU'] );
+			} catch ( \WC_Data_Exception $e ) {
+				array_push( $errors, $e->getMessage() );
+				continue;
+			}
+			$wc_product->set_name( $product['Name'] );
+			$wc_product->set_description( $product['Description'] );
+			$wc_product->set_price( $product['Price'] );
+			$wc_product->set_stock_quantity( $product['QTY'] );
+			$wc_product->set_manage_stock( true );
+			$tag_ids = [];
+			foreach ( $product['tags'] as $tag ) {
+				$tag_id = wp_create_tag( $tag['name'] );
+				if ( is_wp_error( $tag_id ) ) {
+					array_push( $errors, $tag_id );
+					continue;
+				}
+				if ( is_array( $tag_id ) ) {
+					$tag_id = $tag_id['tag_id'];
+				}
+				array_push( $tag_ids, $tag_id );
+			}
+			$wc_product->set_tag_ids( $tag_ids );
+			$wc_product->save();
+			$images = [];
+			foreach ( $product['images'] as $image ) {
+				$image_attachment = new ImageAttachment( 0, $wc_product->get_id() );
+				try {
+					$image_attachment->upload_image_from_src( $image['url'] );
+				} catch ( \WC_REST_Exception $e ) {
+					array_push( $errors, $e->getMessage() );
+					continue;
+				}
+				array_push( $images, $image_attachment->id );
+			}
+			$wc_product->set_gallery_image_ids( $images );
+			$wc_product->save();
+		}
+
+		return $errors;
+	}
+
+	private static function remove_products( $products ) {
+		foreach ( $products as $product ) {
+			$wc_product = wc_get_product( wc_get_product_id_by_sku( $product ) );
+			if ( is_a( $wc_product, \WC_Product::class ) ) {
+				$wc_product->delete( true );
+			}
+		}
+	}
+
+	public static function shop1_product_hook() {
+		$body   = self::parse_and_verify_json_body();
+		$errors = [];
+		if ( is_wp_error( $body ) ) {
+			array_push( $errors, $body );
+		}
+		if ( 'addProduct' === $body['action'] ) {
+			array_merge( $errors, self::insert_products( $body['products'] ) );
+		} elseif ( 'removeProduct' === $body['action'] ) {
+			self::remove_products( $body['products'] );
+		}
+		if ( empty( $errors ) ) {
+			wp_send_json_success();
+		}
+		wp_send_json_error( $errors );
 	}
 }
