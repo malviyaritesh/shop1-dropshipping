@@ -23,7 +23,7 @@ class WcShop1Install {
 	}
 
 	public static function uninstall() {
-		Admin::remove_api_key_data();
+		Admin::cleanup_on_disconnect();
 		delete_option( self::DB_VERSION_OPTION );
 	}
 

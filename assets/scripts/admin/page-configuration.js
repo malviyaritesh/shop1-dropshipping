@@ -8,7 +8,7 @@ jQuery(document).ready(function ($) {
             XDEBUG_SESSION_START: 1,
         }, null, 'json').done(function (data) {
             if (data.success) {
-                if (data.data.code === 'not_authenticated') {
+                if (data.data.code === 'not_authenticated' || data.data.code === 'not_found') {
                     $testConnection.hide();
                     $container.find('.not-connected').show();
                 } else if (data.data.code === 'verified_successfully') {
