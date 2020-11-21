@@ -4,17 +4,17 @@ if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( "You're not allowed to access this page." );
 }
 
-$shop1_logo = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_FILE );
+$shop1_logo = plugins_url( '/assets/images/shop1-logo.png', SHOP1_DROPSHIPPING_PLUGIN_FILE );
 ?>
 
-<div class="wrap wc-shop1-configuration-container">
+<div class="wrap shop1-dropshipping-configuration-container">
     <img class="shop1-logo" src="<?php echo $shop1_logo; ?>" alt="shop1 logo"
          width="120">
     <section class="not-connected" style="display: none;">
         <p>
 			<?php
 			_e( "Let’s connect to your Shop1 account and import the drop shipping catalog " .
-			    "into your website. This should only take a minute!", 'wc-shop1' );
+			    "into your website. This should only take a minute!", 'shop1-dropshipping' );
 			?>
         </p>
 		<?php
@@ -25,18 +25,18 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_FILE
 		?>
         <a href="<?php echo $shop1_connect_url; ?>"
            class="button button-primary">
-			<?php _e( 'Connect to Shop1', 'wc-shop1' ); ?>
+			<?php _e( 'Connect to Shop1', 'shop1-dropshipping' ); ?>
         </a>
     </section>
     <section class="testing">
         <span class="spinner is-active"></span>
         <p>
-			<?php _e( 'Testing connection to Shop1 servers...', 'wc-shop1' ); ?>
+			<?php _e( 'Testing connection to Shop1 servers...', 'shop1-dropshipping' ); ?>
         </p>
         <p class="error" style="display: none;">
 			<?php _e( 'Failed to test the connection.' ); ?>
-            <a href="<?php echo admin_url( 'admin.php?page=' . \WcShop1\Admin\Admin::CONFIGURATIONS_SUBMENU_SLUG ); ?>">
-				<?php _e( 'Reload', 'wc-shop1' ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=' . \Shop1Dropshipping\Admin\Admin::CONFIGURATIONS_SUBMENU_SLUG ); ?>">
+				<?php _e( 'Reload', 'shop1-dropshipping' ); ?>
             </a>
         </p>
     </section>
@@ -46,7 +46,7 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_FILE
             &lpar;<strong class="email"></strong>&rpar;
         </p>
         <button class="button button-secondary disconnect">
-			<?php _e( 'Disconnect', 'wc-shop1' ); ?>
+			<?php _e( 'Disconnect', 'shop1-dropshipping' ); ?>
         </button>
     </section>
 </div>
@@ -68,7 +68,7 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', WC_SHOP1_PLUGIN_FILE
         margin-left: 1em;
     }
 
-    .wc-shop1-configuration-container p.error {
+    .shop1-dropshipping-configuration-container p.error {
         color: #aa0000;
     }
 </style>

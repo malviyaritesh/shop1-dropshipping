@@ -1,18 +1,18 @@
 <?php
 
 
-namespace WcShop1\Admin;
+namespace Shop1Dropshipping\Admin;
 
 
 use Automattic\WooCommerce\RestApi\Utilities\ImageAttachment;
 
 class Admin {
 
-	const SHOP1_API_KEY_OPTION = 'wc_shop1_api_key';
-	const WC_ORDER_CREATED_WEBHOOK_ID_OPTION = 'wc_shop1_order_created_webhook_id';
-	const WC_ORDER_UPDATED_WEBHOOK_ID_OPTION = 'wc_shop1_order_updated_webhook_id';
+	const SHOP1_API_KEY_OPTION = 'shop1-dropshipping_api_key';
+	const WC_ORDER_CREATED_WEBHOOK_ID_OPTION = 'shop1-dropshipping_order_created_webhook_id';
+	const WC_ORDER_UPDATED_WEBHOOK_ID_OPTION = 'shop1-dropshipping_order_updated_webhook_id';
 
-	const SHOP1_MENU_SLUG = 'wc_shop1';
+	const SHOP1_MENU_SLUG = 'shop1-dropshipping';
 	const CONFIGURATIONS_SUBMENU_SLUG = self::SHOP1_MENU_SLUG . '-configurations';
 
 	const SHOP1_CATALOG_URL = 'https://admin.shop1.com/marketplace/catalog/grid';
@@ -47,8 +47,8 @@ class Admin {
 	public static function enqueue_scripts( $hook_suffix ) {
 		if ( 'shop1_page_' . self::CONFIGURATIONS_SUBMENU_SLUG === $hook_suffix ) {
 			wp_enqueue_script(
-				'wc-shop1-configuration',
-				plugins_url( '/assets/scripts/admin/page-configuration.js', WC_SHOP1_PLUGIN_FILE ),
+				'shop1-dropshipping-configuration',
+				plugins_url( '/assets/scripts/admin/page-configuration.js', SHOP1_DROPSHIPPING_PLUGIN_FILE ),
 				[ 'jquery' ],
 				'1.0',
 				true
@@ -60,18 +60,18 @@ class Admin {
 		global $submenu;
 
 		add_menu_page(
-			__( 'Shop1', 'wc-shop1' ),
-			__( 'Shop1', 'wc-shop1' ),
+			__( 'Shop1', 'shop1-dropshipping' ),
+			__( 'Shop1', 'shop1-dropshipping' ),
 			'manage_options',
 			self::SHOP1_MENU_SLUG,
 			'',
-			'dashicons-store'
+			'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU4IiBoZWlnaHQ9IjI4NCIgdmlld0JveD0iMCAwIDI1OCAyODQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIG9wYWNpdHk9IjAuOTQiPgo8ZyBvcGFjaXR5PSIwLjk0Ij4KPGcgb3BhY2l0eT0iMC45NCI+CjxnIG9wYWNpdHk9IjAuOTQiPgo8cGF0aCBvcGFjaXR5PSIwLjk0IiBkPSJNMjU3LjI5NCA4Ny44MDQ5QzI1Ny4yOTQgMTA3LjM3MyAyNDEuNDMzIDEyMy4yMzQgMjIxLjg2NSAxMjMuMjM0QzIwMi4yOTcgMTIzLjIzNCAxODYuNDM0IDEwNy4zNzMgMTg2LjQzNCA4Ny44MDQ5QzE4Ni40MzQgNjguMjM2OSAyMDIuMjk3IDUyLjM3NTYgMjIxLjg2NSA1Mi4zNzU2QzI0MS40MzMgNTIuMzc1NiAyNTcuMjk0IDY4LjIzNjkgMjU3LjI5NCA4Ny44MDQ5WiIgZmlsbD0iIzY2MkQ5MSIvPgo8L2c+CjxnIG9wYWNpdHk9IjAuOTQiPgo8cGF0aCBvcGFjaXR5PSIwLjk0IiBkPSJNMTc0LjExMSAyMS41NjY3QzE3NC4xMTEgMzMuNDc3NCAxNjQuNDU2IDQzLjEzMjEgMTUyLjU0NSA0My4xMzIxQzE0MC42MzUgNDMuMTMyMSAxMzAuOTc5IDMzLjQ3NzQgMTMwLjk3OSAyMS41NjY3QzEzMC45NzkgOS42NTYwOCAxNDAuNjM1IDguMzk1MTFlLTA1IDE1Mi41NDUgOC4zOTUxMWUtMDVDMTY0LjQ1NiA4LjM5NTExZS0wNSAxNzQuMTExIDkuNjU2MDggMTc0LjExMSAyMS41NjY3WiIgZmlsbD0iIzY2MkQ5MSIvPgo8L2c+CjxnIG9wYWNpdHk9IjAuOTQiPgo8cGF0aCBvcGFjaXR5PSIwLjk0IiBkPSJNMjE3Ljk1OSAxNTIuMTA2SDIxMy41MjNWMTUwLjUwM0gyMjQuMzIxVjE1Mi4xMDZIMjE5Ljg2M1YxNjUuMDg4SDIxNy45NTlWMTUyLjEwNloiIGZpbGw9IiM2NjJEOTEiLz4KPC9nPgo8ZyBvcGFjaXR5PSIwLjk0Ij4KPHBhdGggb3BhY2l0eT0iMC45NCIgZD0iTTIzOC4yMzcgMTU4LjY4M0MyMzguMTI5IDE1Ni42NDkgMjM3Ljk5NyAxNTQuMjA0IDIzOC4wMjEgMTUyLjM4NUgyMzcuOTU0QzIzNy40NTcgMTU0LjA5NiAyMzYuODUyIDE1NS45MTMgMjM2LjExNiAxNTcuOTI3TDIzMy41NDEgMTY1LjAwMUgyMzIuMTEzTDIyOS43NTQgMTU4LjA1NUMyMjkuMDYxIDE1NiAyMjguNDc3IDE1NC4xMTcgMjI4LjA2NiAxNTIuMzg1SDIyOC4wMjRDMjI3Ljk4IDE1NC4yMDQgMjI3Ljg3MiAxNTYuNjQ5IDIyNy43NDIgMTU4LjgzNUwyMjcuMzUyIDE2NS4wODlIMjI1LjU1NkwyMjYuNTczIDE1MC41MDNIMjI4Ljk3NkwyMzEuNDYyIDE1Ny41NTdDMjMyLjA2OSAxNTkuMzU1IDIzMi41NjYgMTYwLjk1NSAyMzIuOTM0IDE2Mi40NzFIMjMyLjk5OEMyMzMuMzY4IDE2MC45OTcgMjMzLjg4NiAxNTkuMzk3IDIzNC41MzYgMTU3LjU1N0wyMzcuMTMzIDE1MC41MDNIMjM5LjUzNkwyNDAuNDQyIDE2NS4wODlIMjM4LjYwNEwyMzguMjM3IDE1OC42ODNaIiBmaWxsPSIjNjYyRDkxIi8+CjwvZz4KPGcgb3BhY2l0eT0iMC45NCI+CjxwYXRoIG9wYWNpdHk9IjAuOTQiIGQ9Ik0xNDYuNjA0IDI1MS4wODJINTcuODA0VjIyMi41MjFIODcuMjMwN1YxMzcuMjYySDY1LjkzMlYxMTAuODM4SDExNS42MjhWMjIyLjUyMUgxNDYuNjA0VjI1MS4wODJaTTEwMi4yMDQgNzguNzU0M0M0NS43NTg3IDc4Ljc1NDMgMCAxMjQuNTE0IDAgMTgwLjk2QzAgMjM3LjQwNiA0NS43NTg3IDI4My4xNjUgMTAyLjIwNCAyODMuMTY1QzE1OC42NTEgMjgzLjE2NSAyMDQuNDA5IDIzNy40MDYgMjA0LjQwOSAxODAuOTZDMjA0LjQwOSAxMjQuNTE0IDE1OC42NTEgNzguNzU0MyAxMDIuMjA0IDc4Ljc1NDNaIiBmaWxsPSIjNjYyRDkxIi8+CjwvZz4KPC9nPgo8L2c+CjwvZz4KPC9zdmc+Cg=='
 		);
-		$submenu[ self::SHOP1_MENU_SLUG ][] = [ __( 'Catalog', 'wc-shop1' ), 'manage_options', self::SHOP1_CATALOG_URL ];
+		$submenu[ self::SHOP1_MENU_SLUG ][] = [ __( 'Catalog', 'shop1-dropshipping' ), 'manage_options', self::SHOP1_CATALOG_URL ];
 		add_submenu_page(
 			self::SHOP1_MENU_SLUG,
-			__( 'Configurations', 'wc-shop1' ),
-			__( 'Configurations', 'wc-shop1' ),
+			__( 'Configurations', 'shop1-dropshipping' ),
+			__( 'Configurations', 'shop1-dropshipping' ),
 			'manage_options',
 			self::CONFIGURATIONS_SUBMENU_SLUG,
 			[ __CLASS__, 'configurations_page' ]
@@ -79,13 +79,13 @@ class Admin {
 	}
 
 	public static function configurations_page() {
-		include dirname( WC_SHOP1_PLUGIN_FILE ) . '/templates/admin/page-configuration.php';
+		include dirname( SHOP1_DROPSHIPPING_PLUGIN_FILE ) . '/templates/admin/page-configuration.php';
 	}
 
 	public static function print_footer_scripts() {
 		?>
         <script>
-            document.querySelector('#toplevel_page_wc_shop1 .wp-submenu a.wp-first-item').setAttribute('target', '_blank');
+            document.querySelector('#toplevel_page_shop1-dropshipping .wp-submenu a.wp-first-item').setAttribute('target', '_blank');
         </script>
 		<?php
 	}
@@ -219,7 +219,7 @@ class Admin {
 	private static function log_to_db( $type, $identifier, $data, $complex_data = true ) {
 		global $wpdb;
 
-		return $wpdb->insert( "{$wpdb->prefix}wc_shop1_log", [
+		return $wpdb->insert( "{$wpdb->prefix}shop1_dropshipping_log", [
 			'user_id'    => get_current_user_id(),
 			'type'       => $type,
 			'identifier' => $identifier,
@@ -257,7 +257,7 @@ class Admin {
 
 		return $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}wc_shop1_log
+				"SELECT id FROM {$wpdb->prefix}shop1_dropshipping_log
                 WHERE type = 'shop1_connect_request' AND identifier = %s",
 				$identifier
 			)
@@ -319,7 +319,7 @@ class Admin {
 				self::log_to_db( 'shop1_disconnect_response', $api_key_data['identifier'], $body );
 				wp_send_json_success( [
 					'code'    => 'disconnected',
-					'message' => __( 'Disconnected successfully.', 'wc-shop1' ),
+					'message' => __( 'Disconnected successfully.', 'shop1-dropshipping' ),
 				] );
 			}
 		}
@@ -331,7 +331,7 @@ class Admin {
 		if ( empty( $api_key_data ) ) {
 			wp_send_json_success( [
 				'code'    => 'not_authenticated',
-				'message' => __( 'Not authenticated.', 'wc-shop1' ),
+				'message' => __( 'Not authenticated.', 'shop1-dropshipping' ),
 			] );
 		}
 		$response = wp_remote_get( add_query_arg( [

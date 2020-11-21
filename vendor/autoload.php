@@ -5,8 +5,8 @@
  * @param string $class Fully qualified name of class to load.
  */
 spl_autoload_register( function ( $class ) {
-	$prefix   = 'WcShop1\\';
-	$base_dir = dirname( WC_SHOP1_PLUGIN_FILE ) . '/includes/';
+	$prefix   = 'Shop1Dropshipping\\';
+	$base_dir = dirname( SHOP1_DROPSHIPPING_PLUGIN_FILE ) . '/includes/';
 	// Does the class use the namespace prefix?
 	$prefix_len = strlen( $prefix );
 	if ( 0 !== strncmp( $prefix, $class, $prefix_len ) ) {

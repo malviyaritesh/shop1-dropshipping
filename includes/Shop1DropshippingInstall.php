@@ -1,16 +1,16 @@
 <?php
 
 
-namespace WcShop1;
+namespace Shop1Dropshipping;
 
 
-use WcShop1\Admin\Admin;
+use Shop1Dropshipping\Admin\Admin;
 
-class WcShop1Install {
+class Shop1DropshippingInstall {
 	const DB_VERSION = '0.0.5';
 
-	const ACTIVATION_TRANSIENT = 'wc-shop1_activating';
-	const DB_VERSION_OPTION = 'wc-shop1_db_version';
+	const ACTIVATION_TRANSIENT = 'shop1-dropshipping_activating';
+	const DB_VERSION_OPTION = 'shop1-dropshipping_db_version';
 
 	public static function activate() {
 		if ( 'yes' === get_transient( self::ACTIVATION_TRANSIENT ) ) {
@@ -44,7 +44,7 @@ class WcShop1Install {
 		$collate = $wpdb->has_cap( 'collation' ) ? $wpdb->get_charset_collate() : '';
 
 		$tables = "
-CREATE TABLE {$wpdb->prefix}wc_shop1_log (
+CREATE TABLE {$wpdb->prefix}shop1_dropshipping_log (
 	id bigint unsigned NOT NULL auto_increment,
 	user_id bigint NOT NULL default 0,
 	type varchar(64) NOT NULL,

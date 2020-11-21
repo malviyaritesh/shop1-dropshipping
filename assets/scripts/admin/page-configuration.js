@@ -1,5 +1,5 @@
 jQuery(document).ready(function ($) {
-    const $container = $('.wc-shop1-configuration-container');
+    const $container = $('.shop1-dropshipping-configuration-container');
     const $testConnection = $container.find('.testing');
 
     if ($testConnection.length) {
