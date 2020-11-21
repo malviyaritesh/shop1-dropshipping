@@ -47,9 +47,8 @@ class Admin {
         <div class="notice notice-error">
             <p>
                 <strong>Shop1 Dropshipping</strong> plugin is a WooCommerce
-                extension.
-                Please install and activate <a
-                        href="https://wordpress.org/plugins/woocommerce/">WooCommerce</a>
+                extension. Please install and activate
+                <a href="https://wordpress.org/plugins/woocommerce/">WooCommerce</a>
                 for this plugin to function properly.
             </p>
         </div>
@@ -318,6 +317,7 @@ class Admin {
 	public static function cleanup_on_disconnect() {
 		self::remove_wc_order_webhooks();
 		self::remove_api_key_data();
+		self::remove_products( self::get_all_shop1_products() );
 	}
 
 	public static function shop1_disconnect() {
@@ -452,9 +452,32 @@ class Admin {
 				$wc_product->set_gallery_image_ids( $images );
 			}
 			$wc_product->save();
+			self::log_to_db( 'shop1_add_products', $wc_product->get_id(), $product );
 		}
 
 		return $errors;
+	}
+
+	private static function get_all_shop1_products() {
+		global $wpdb;
+
+		$rows   = $wpdb->get_results(
+			"SELECT payload FROM {$wpdb->prefix}shop1_dropshipping_log
+                WHERE type = 'shop1_add_products'", ARRAY_A
+		);
+		$output = [];
+		if ( $rows ) {
+			foreach ( $rows as $row ) {
+				$products = maybe_unserialize( $row['payload'] );
+				if ( is_array( $products ) ) {
+					foreach ( $products as $product ) {
+						array_push( $output, $product['SKU'] );
+					}
+				}
+			}
+		}
+
+		return $output;
 	}
 
 	private static function remove_products( $products ) {
@@ -462,6 +485,7 @@ class Admin {
 			$wc_product = wc_get_product( wc_get_product_id_by_sku( $product ) );
 			if ( is_a( $wc_product, \WC_Product::class ) ) {
 				$wc_product->delete( true );
+				self::log_to_db( 'shop1_remove_products', $wc_product->get_id(), $product );
 			}
 		}
 	}
@@ -474,10 +498,8 @@ class Admin {
 		}
 		if ( 'addProduct' === $body['action'] ) {
 			array_merge( $errors, self::insert_products( $body['products'] ) );
-			self::log_to_db( 'shop1_add_products', $body['state'], $body['products'] );
 		} elseif ( 'removeProduct' === $body['action'] ) {
 			self::remove_products( $body['products'] );
-			self::log_to_db( 'shop1_remove_products', $body['state'], $body['products'] );
 		}
 		if ( empty( $errors ) ) {
 			wp_send_json_success();
