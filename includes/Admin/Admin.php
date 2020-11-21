@@ -197,6 +197,7 @@ class Admin {
 				'shipping_cost'       => $payload['shipping_total'],
 				'discount'            => $payload['discount_total'],
 				'tax'                 => $payload['total_tax'],
+				'total'               => $payload['total'],
 				'shipping_method'     => isset( $payload['shipping_lines'] ) && count( $payload['shipping_lines'] ) > 0
 					? $payload['shipping_lines'][0]['method_title']
 					: null,
