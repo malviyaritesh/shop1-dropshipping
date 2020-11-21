@@ -40,9 +40,22 @@ class Admin {
 		add_action( 'wp_ajax_shop1-order-hook', [ __CLASS__, 'shop1_order_hook' ] );
 		add_action( 'wp_ajax_nopriv_shop1-order-hook', [ __CLASS__, 'shop1_order_hook' ] );
 
+		add_filter( 'plugin_action_links_' . plugin_basename( SHOP1_DROPSHIPPING_PLUGIN_FILE ), [ __CLASS__, 'add_plugin_action_links' ] );
+
 		add_filter( 'woocommerce_webhook_payload', [ __CLASS__, 'filter_wc_webhook_payload' ], 10, 4 );
 		add_filter( 'woocommerce_webhook_should_deliver', [ __CLASS__, 'filter_wc_webhook_should_deliver' ], 10, 3 );
 	}
+
+	public static function render_missing_or_outdated_wc_notice() {
+        ?>
+        <div class="notice notice-error">
+            <p>
+                <strong>Shop1 Dropshipping</strong> plugin is a WooCommerce extension.
+                Please install and activate <a href="https://wordpress.org/plugins/woocommerce/">WooCommerce</a> for this plugin to function properly.
+            </p>
+        </div>
+        <?php
+    }
 
 	public static function enqueue_scripts( $hook_suffix ) {
 		if ( 'shop1_page_' . self::CONFIGURATIONS_SUBMENU_SLUG === $hook_suffix ) {
@@ -54,6 +67,12 @@ class Admin {
 				true
 			);
 		}
+	}
+
+	public static function add_plugin_action_links( $actions ) {
+		return array_merge( [
+			'configure' => '<a href="' . admin_url( 'admin.php?page=' . self::CONFIGURATIONS_SUBMENU_SLUG ) . '">' . __( 'Configure', 'shop1-dropshipping' ) . '</a>',
+		], $actions );
 	}
 
 	public static function shop1_admin_menu() {
@@ -157,12 +176,12 @@ class Admin {
 
 	public static function filter_wc_webhook_payload( $payload, $resource, $resource_id, $webhook_id ) {
 		if ( self::is_active_shop1_webhook( $webhook_id )
-             && $resource === 'order'
+		     && $resource === 'order'
 		     && isset( $payload['id'], $payload['order_key'], $payload['status'] )
 		     && 'completed' === $payload['status']
 		) {
 			$identifier = $payload['order_key'];
-			$payload = [
+			$payload    = [
 				'platform_order_id'   => $payload['id'],
 				'customer_first_name' => $payload['billing']['first_name'],
 				'customer_last_name'  => $payload['billing']['last_name'],
@@ -199,7 +218,7 @@ class Admin {
 					];
 				}, $payload['line_items'] ),
 			];
-			self::log_to_db('shop1_wc_order_webhook', $identifier, $payload );
+			self::log_to_db( 'shop1_wc_order_webhook', $identifier, $payload );
 		}
 
 		return $payload;
