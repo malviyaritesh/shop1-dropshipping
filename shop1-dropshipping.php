@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Shop1 Dropshipping
- * Plugin URI: https://owliverse.com
+ * Plugin URI: http://shop1.com/
  * Description: WooCommerce integration for Shop1.
  * Version: 0.0.2
  * Author: shop1.com
