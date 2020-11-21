@@ -1,5 +1,7 @@
 <?php
 
+use Shop1Dropshipping\Admin\Admin;
+
 if ( ! current_user_can( 'manage_options' ) ) {
 	wp_die( "You're not allowed to access this page." );
 }
@@ -7,7 +9,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', SHOP1_DROPSHIPPING_PLUGIN_FILE );
 ?>
 
-<div class="wrap shop1-dropshipping-configuration-container">
+<div class="wrap <?php echo Admin::CONFIGURATIONS_SUBMENU_SLUG; ?>-container">
     <img class="shop1-logo" src="<?php echo $shop1_logo; ?>" alt="shop1 logo"
          width="120">
     <section class="not-connected" style="display: none;">
@@ -35,7 +37,7 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', SHOP1_DROPSHIPPING_P
         </p>
         <p class="error" style="display: none;">
 			<?php _e( 'Failed to test the connection.' ); ?>
-            <a href="<?php echo admin_url( 'admin.php?page=' . \Shop1Dropshipping\Admin\Admin::CONFIGURATIONS_SUBMENU_SLUG ); ?>">
+            <a href="<?php echo admin_url( 'admin.php?page=' . Admin::CONFIGURATIONS_SUBMENU_SLUG ); ?>">
 				<?php _e( 'Reload', 'shop1-dropshipping' ); ?>
             </a>
         </p>
@@ -68,7 +70,7 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', SHOP1_DROPSHIPPING_P
         margin-left: 1em;
     }
 
-    .shop1-dropshipping-configuration-container p.error {
+    .shop1-dropshipping-configurations-container p.error {
         color: #aa0000;
     }
 </style>

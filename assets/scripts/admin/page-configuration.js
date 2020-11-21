@@ -1,11 +1,10 @@
 jQuery(document).ready(function ($) {
-    const $container = $('.shop1-dropshipping-configuration-container');
+    const $container = $('.shop1-dropshipping-configurations-container');
     const $testConnection = $container.find('.testing');
 
     if ($testConnection.length) {
         $.get(window.ajaxurl, {
             action: 'shop1-test-connection',
-            XDEBUG_SESSION_START: 1,
         }, null, 'json').done(function (data) {
             if (data.success) {
                 if (data.data.code === 'not_authenticated' || data.data.code === 'not_found') {
