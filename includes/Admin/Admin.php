@@ -111,6 +111,7 @@ class Admin {
 		$api_key_data = self::get_api_key_data();
 		if ( isset( $api_key_data['api_key'] ) ) {
 			$topics       = [
+
 				'order.created' => [
 					'name'        => 'Send new order to Shop1',
 					'option_name' => self::WC_ORDER_CREATED_WEBHOOK_ID_OPTION,
@@ -127,18 +128,20 @@ class Admin {
 			], 'https://admin.shop1.com/api/orders/new' );
 			$user_id      = get_current_user_id();
 
+			// Remove any existing webhooks, so there are no orphaned
+            // entries present and we don't create duplicates.
+            self::remove_wc_order_webhooks();
+
 			foreach ( $topics as $topic => $val ) {
-				if ( false === get_option( $val['option_name'] ) ) {
-					$webhook = new \WC_Webhook();
-					$webhook->set_name( $val['name'] );
-					$webhook->set_user_id( $user_id );
-					$webhook->set_topic( $topic );
-					$webhook->set_secret( self::get_unique_identifier() );
-					$webhook->set_delivery_url( $delivery_url );
-					$webhook->set_status( 'active' );
-					$webhook->save();
-					update_option( $val['option_name'], $webhook->get_id() );
-				}
+				$webhook = new \WC_Webhook();
+				$webhook->set_name( $val['name'] );
+				$webhook->set_user_id( $user_id );
+				$webhook->set_topic( $topic );
+				$webhook->set_secret( self::get_unique_identifier() );
+				$webhook->set_delivery_url( $delivery_url );
+				$webhook->set_status( 'active' );
+				$webhook->save();
+				update_option( $val['option_name'], $webhook->get_id() );
 			}
 		}
 	}
@@ -317,8 +320,8 @@ class Admin {
 
 	public static function cleanup_on_disconnect() {
 		self::remove_wc_order_webhooks();
-		self::remove_api_key_data();
 		self::remove_products( self::get_all_shop1_products() );
+		self::remove_api_key_data();
 	}
 
 	public static function shop1_disconnect() {
