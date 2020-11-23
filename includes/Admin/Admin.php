@@ -207,7 +207,7 @@ class Admin {
 					return [
 						'id'            => $product['id'],
 						'sku'           => $product['sku'],
-						'unit_price'    => $product['price'],
+						'unit_price'    => wc_format_decimal( $product['price'] ),
 						'qty'           => $product['quantity'],
 						'line_total'    => $product['subtotal'],
 						'tax'           => $product['total_tax'],
