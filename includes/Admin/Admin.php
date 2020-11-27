@@ -11,8 +11,11 @@ class Admin {
 	const SHOP1_API_KEY_OPTION = 'shop1-dropshipping_api_key';
 	const WC_ORDER_CREATED_WEBHOOK_ID_OPTION = 'shop1-dropshipping_order_created_webhook_id';
 	const WC_ORDER_UPDATED_WEBHOOK_ID_OPTION = 'shop1-dropshipping_order_updated_webhook_id';
+	const SHOP1_PRODUCT_IDS_OPTION = 'shop1-dropshipping_product_ids';
 
 	const CONFIGURATIONS_SUBMENU_SLUG = 'shop1-dropshipping-configurations';
+
+	const BATCH_PROCESSING_LIMIT = 100;
 
 	private static $api_key_data;
 
@@ -129,8 +132,8 @@ class Admin {
 			$user_id      = get_current_user_id();
 
 			// Remove any existing webhooks, so there are no orphaned
-            // entries present and we don't create duplicates.
-            self::remove_wc_order_webhooks();
+			// entries present and we don't create duplicates.
+			self::remove_wc_order_webhooks();
 
 			foreach ( $topics as $topic => $val ) {
 				$webhook = new \WC_Webhook();
@@ -279,7 +282,7 @@ class Admin {
 		return $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT id FROM {$wpdb->prefix}shop1_dropshipping_log
-                WHERE type = 'shop1_connect_request' AND identifier = %s",
+                WHERE created_at >= (NOW() - INTERVAL 1 DAY) AND type = 'shop1_connect_request' AND identifier = %s",
 				$identifier
 			)
 		);
@@ -320,7 +323,7 @@ class Admin {
 
 	public static function cleanup_on_disconnect() {
 		self::remove_wc_order_webhooks();
-		self::remove_products( self::get_all_shop1_products() );
+		self::remove_shop1_products( self::get_shop1_product_ids() );
 		self::remove_api_key_data();
 	}
 
@@ -410,7 +413,8 @@ class Admin {
 	}
 
 	private static function insert_products( $products ) {
-		$errors = [];
+		$errors               = [];
+		$inserted_product_ids = [];
 		foreach ( $products as $product ) {
 			$wc_product = new \WC_Product();
 			try {
@@ -456,42 +460,56 @@ class Admin {
 				$wc_product->set_gallery_image_ids( $images );
 			}
 			$wc_product->save();
-			self::log_to_db( 'shop1_add_products', $wc_product->get_id(), $product );
+			$wc_product_id = $wc_product->get_id();
+			array_push( $inserted_product_ids, $wc_product_id );
+			self::log_to_db( 'shop1_add_product', $wc_product_id, $product );
 		}
+		self::insert_shop1_product_ids( $inserted_product_ids );
 
 		return $errors;
 	}
 
-	private static function get_all_shop1_products() {
-		global $wpdb;
-
-		$rows   = $wpdb->get_results(
-			"SELECT payload FROM {$wpdb->prefix}shop1_dropshipping_log
-                WHERE type = 'shop1_add_products'", ARRAY_A
-		);
-		$output = [];
-		if ( $rows ) {
-			foreach ( $rows as $row ) {
-				$products = maybe_unserialize( $row['payload'] );
-				if ( is_array( $products ) ) {
-					foreach ( $products as $product ) {
-						array_push( $output, $product['SKU'] );
-					}
-				}
-			}
-		}
-
-		return $output;
+	private static function get_shop1_product_ids() {
+		return (array) get_option( self::SHOP1_PRODUCT_IDS_OPTION, [] );
 	}
 
-	private static function remove_products( $products ) {
-		foreach ( $products as $product ) {
-			$wc_product = wc_get_product( wc_get_product_id_by_sku( $product ) );
+	private static function insert_shop1_product_ids( $product_ids ) {
+		return update_option( self::SHOP1_PRODUCT_IDS_OPTION,
+			array_keys(
+				array_fill_keys( self::get_shop1_product_ids(), true ) +
+				array_fill_keys( $product_ids, true )
+			)
+		);
+	}
+
+	private static function remove_shop1_product_ids( $product_ids ) {
+		return update_option( self::SHOP1_PRODUCT_IDS_OPTION,
+			array_diff( self::get_shop1_product_ids(), $product_ids )
+		);
+	}
+
+	private static function remove_shop1_products( $ids, $by_sku = false ) {
+		$product_ids = [];
+		if ( $by_sku ) {
+			foreach ( $ids as $sku ) {
+				$product_id = wc_get_product_id_by_sku( $sku );
+				if ( is_int( $product_id ) && $product_id > 0 ) {
+					array_push( $product_ids, $product_id );
+				}
+			}
+		} else {
+			$product_ids = $ids;
+		}
+		$removed_product_ids = [];
+		foreach ( $product_ids as $product_id ) {
+			$wc_product = wc_get_product( $product_id );
 			if ( is_a( $wc_product, \WC_Product::class ) ) {
 				$wc_product->delete( true );
-				self::log_to_db( 'shop1_remove_products', $wc_product->get_id(), $product );
+				array_push( $removed_product_ids, $wc_product->get_id() );
 			}
 		}
+		self::log_to_db( 'shop1_remove_products', 'rp' . count( $ids ) . time(), $product_ids );
+		self::remove_shop1_product_ids( $removed_product_ids );
 	}
 
 	public static function shop1_product_hook() {
@@ -500,10 +518,17 @@ class Admin {
 		if ( is_wp_error( $body ) ) {
 			array_push( $errors, $body );
 		}
+		if ( count( $body['products'] ) > self::BATCH_PROCESSING_LIMIT ) {
+			array_push( $errors, new \WP_Error(
+					'BATCH_LIMIT_EXCEEDED',
+					'More than ' . self::BATCH_PROCESSING_LIMIT . ' products are not allowed.' )
+			);
+			wp_send_json_error( $errors );
+		}
 		if ( 'addProduct' === $body['action'] ) {
 			array_merge( $errors, self::insert_products( $body['products'] ) );
 		} elseif ( 'removeProduct' === $body['action'] ) {
-			self::remove_products( $body['products'] );
+			self::remove_shop1_products( $body['products'], true );
 		}
 		if ( empty( $errors ) ) {
 			wp_send_json_success();
