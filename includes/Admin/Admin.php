@@ -36,6 +36,8 @@ class Admin {
 		add_action( 'wp_ajax_shop1-product-hook', [ __CLASS__, 'shop1_product_hook' ] );
 		add_action( 'wp_ajax_nopriv_shop1-product-hook', [ __CLASS__, 'shop1_product_hook' ] );
 
+		add_action( 'schedule_remove_shop1_products', [ __CLASS__, 'schedule_remove_shop1_products' ], 10, 2 );
+
 		add_action( 'wp_ajax_shop1-order-hook', [ __CLASS__, 'shop1_order_hook' ] );
 		add_action( 'wp_ajax_nopriv_shop1-order-hook', [ __CLASS__, 'shop1_order_hook' ] );
 
@@ -51,7 +53,8 @@ class Admin {
             <p>
                 <strong>Shop1 Dropshipping</strong> plugin is a WooCommerce
                 extension. Please install and activate
-                <a href="https://wordpress.org/plugins/woocommerce/">WooCommerce</a>
+                <a href="https://wordpress.org/plugins/woocommerce/"
+                   target="_blank">WooCommerce</a>
                 for this plugin to function properly.
             </p>
         </div>
@@ -85,7 +88,7 @@ class Admin {
 			'manage_options',
 			self::CONFIGURATIONS_SUBMENU_SLUG,
 			'',
-			'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU4IiBoZWlnaHQ9IjI4NCIgdmlld0JveD0iMCAwIDI1OCAyODQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIG9wYWNpdHk9IjAuOTQiPgo8ZyBvcGFjaXR5PSIwLjk0Ij4KPGcgb3BhY2l0eT0iMC45NCI+CjxnIG9wYWNpdHk9IjAuOTQiPgo8cGF0aCBvcGFjaXR5PSIwLjk0IiBkPSJNMjU3LjI5NCA4Ny44MDQ5QzI1Ny4yOTQgMTA3LjM3MyAyNDEuNDMzIDEyMy4yMzQgMjIxLjg2NSAxMjMuMjM0QzIwMi4yOTcgMTIzLjIzNCAxODYuNDM0IDEwNy4zNzMgMTg2LjQzNCA4Ny44MDQ5QzE4Ni40MzQgNjguMjM2OSAyMDIuMjk3IDUyLjM3NTYgMjIxLjg2NSA1Mi4zNzU2QzI0MS40MzMgNTIuMzc1NiAyNTcuMjk0IDY4LjIzNjkgMjU3LjI5NCA4Ny44MDQ5WiIgZmlsbD0iIzY2MkQ5MSIvPgo8L2c+CjxnIG9wYWNpdHk9IjAuOTQiPgo8cGF0aCBvcGFjaXR5PSIwLjk0IiBkPSJNMTc0LjExMSAyMS41NjY3QzE3NC4xMTEgMzMuNDc3NCAxNjQuNDU2IDQzLjEzMjEgMTUyLjU0NSA0My4xMzIxQzE0MC42MzUgNDMuMTMyMSAxMzAuOTc5IDMzLjQ3NzQgMTMwLjk3OSAyMS41NjY3QzEzMC45NzkgOS42NTYwOCAxNDAuNjM1IDguMzk1MTFlLTA1IDE1Mi41NDUgOC4zOTUxMWUtMDVDMTY0LjQ1NiA4LjM5NTExZS0wNSAxNzQuMTExIDkuNjU2MDggMTc0LjExMSAyMS41NjY3WiIgZmlsbD0iIzY2MkQ5MSIvPgo8L2c+CjxnIG9wYWNpdHk9IjAuOTQiPgo8cGF0aCBvcGFjaXR5PSIwLjk0IiBkPSJNMjE3Ljk1OSAxNTIuMTA2SDIxMy41MjNWMTUwLjUwM0gyMjQuMzIxVjE1Mi4xMDZIMjE5Ljg2M1YxNjUuMDg4SDIxNy45NTlWMTUyLjEwNloiIGZpbGw9IiM2NjJEOTEiLz4KPC9nPgo8ZyBvcGFjaXR5PSIwLjk0Ij4KPHBhdGggb3BhY2l0eT0iMC45NCIgZD0iTTIzOC4yMzcgMTU4LjY4M0MyMzguMTI5IDE1Ni42NDkgMjM3Ljk5NyAxNTQuMjA0IDIzOC4wMjEgMTUyLjM4NUgyMzcuOTU0QzIzNy40NTcgMTU0LjA5NiAyMzYuODUyIDE1NS45MTMgMjM2LjExNiAxNTcuOTI3TDIzMy41NDEgMTY1LjAwMUgyMzIuMTEzTDIyOS43NTQgMTU4LjA1NUMyMjkuMDYxIDE1NiAyMjguNDc3IDE1NC4xMTcgMjI4LjA2NiAxNTIuMzg1SDIyOC4wMjRDMjI3Ljk4IDE1NC4yMDQgMjI3Ljg3MiAxNTYuNjQ5IDIyNy43NDIgMTU4LjgzNUwyMjcuMzUyIDE2NS4wODlIMjI1LjU1NkwyMjYuNTczIDE1MC41MDNIMjI4Ljk3NkwyMzEuNDYyIDE1Ny41NTdDMjMyLjA2OSAxNTkuMzU1IDIzMi41NjYgMTYwLjk1NSAyMzIuOTM0IDE2Mi40NzFIMjMyLjk5OEMyMzMuMzY4IDE2MC45OTcgMjMzLjg4NiAxNTkuMzk3IDIzNC41MzYgMTU3LjU1N0wyMzcuMTMzIDE1MC41MDNIMjM5LjUzNkwyNDAuNDQyIDE2NS4wODlIMjM4LjYwNEwyMzguMjM3IDE1OC42ODNaIiBmaWxsPSIjNjYyRDkxIi8+CjwvZz4KPGcgb3BhY2l0eT0iMC45NCI+CjxwYXRoIG9wYWNpdHk9IjAuOTQiIGQ9Ik0xNDYuNjA0IDI1MS4wODJINTcuODA0VjIyMi41MjFIODcuMjMwN1YxMzcuMjYySDY1LjkzMlYxMTAuODM4SDExNS42MjhWMjIyLjUyMUgxNDYuNjA0VjI1MS4wODJaTTEwMi4yMDQgNzguNzU0M0M0NS43NTg3IDc4Ljc1NDMgMCAxMjQuNTE0IDAgMTgwLjk2QzAgMjM3LjQwNiA0NS43NTg3IDI4My4xNjUgMTAyLjIwNCAyODMuMTY1QzE1OC42NTEgMjgzLjE2NSAyMDQuNDA5IDIzNy40MDYgMjA0LjQwOSAxODAuOTZDMjA0LjQwOSAxMjQuNTE0IDE1OC42NTEgNzguNzU0MyAxMDIuMjA0IDc4Ljc1NDNaIiBmaWxsPSIjNjYyRDkxIi8+CjwvZz4KPC9nPgo8L2c+CjwvZz4KPC9zdmc+Cg=='
+			'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU4IiBoZWlnaHQ9IjI4NCIgdmlld0JveD0iMCAwIDI1OCAyODQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8Zz4KICAgICAgICA8Zz4KICAgICAgICAgICAgPGc+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMjU3LjI5NCA4Ny44MDQ5QzI1Ny4yOTQgMTA3LjM3MyAyNDEuNDMzIDEyMy4yMzQgMjIxLjg2NSAxMjMuMjM0QzIwMi4yOTcgMTIzLjIzNCAxODYuNDM0IDEwNy4zNzMgMTg2LjQzNCA4Ny44MDQ5QzE4Ni40MzQgNjguMjM2OSAyMDIuMjk3IDUyLjM3NTYgMjIxLjg2NSA1Mi4zNzU2QzI0MS40MzMgNTIuMzc1NiAyNTcuMjk0IDY4LjIzNjkgMjU3LjI5NCA4Ny44MDQ5WiIKICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjZmZmZmZmIi8+CiAgICAgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTc0LjExMSAyMS41NjY3QzE3NC4xMTEgMzMuNDc3NCAxNjQuNDU2IDQzLjEzMjEgMTUyLjU0NSA0My4xMzIxQzE0MC42MzUgNDMuMTMyMSAxMzAuOTc5IDMzLjQ3NzQgMTMwLjk3OSAyMS41NjY3QzEzMC45NzkgOS42NTYwOCAxNDAuNjM1IDguMzk1MTFlLTA1IDE1Mi41NDUgOC4zOTUxMWUtMDVDMTY0LjQ1NiA4LjM5NTExZS0wNSAxNzQuMTExIDkuNjU2MDggMTc0LjExMSAyMS41NjY3WiIKICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjZmZmZmZmIi8+CiAgICAgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMjE3Ljk1OSAxNTIuMTA2SDIxMy41MjNWMTUwLjUwM0gyMjQuMzIxVjE1Mi4xMDZIMjE5Ljg2M1YxNjUuMDg4SDIxNy45NTlWMTUyLjEwNloiCiAgICAgICAgICAgICAgICAgICAgICAgICAgZmlsbD0iI2ZmZmZmZiIvPgogICAgICAgICAgICAgICAgPC9nPgogICAgICAgICAgICAgICAgPGc+CiAgICAgICAgICAgICAgICAgICAgPHBhdGggZD0iTTIzOC4yMzcgMTU4LjY4M0MyMzguMTI5IDE1Ni42NDkgMjM3Ljk5NyAxNTQuMjA0IDIzOC4wMjEgMTUyLjM4NUgyMzcuOTU0QzIzNy40NTcgMTU0LjA5NiAyMzYuODUyIDE1NS45MTMgMjM2LjExNiAxNTcuOTI3TDIzMy41NDEgMTY1LjAwMUgyMzIuMTEzTDIyOS43NTQgMTU4LjA1NUMyMjkuMDYxIDE1NiAyMjguNDc3IDE1NC4xMTcgMjI4LjA2NiAxNTIuMzg1SDIyOC4wMjRDMjI3Ljk4IDE1NC4yMDQgMjI3Ljg3MiAxNTYuNjQ5IDIyNy43NDIgMTU4LjgzNUwyMjcuMzUyIDE2NS4wODlIMjI1LjU1NkwyMjYuNTczIDE1MC41MDNIMjI4Ljk3NkwyMzEuNDYyIDE1Ny41NTdDMjMyLjA2OSAxNTkuMzU1IDIzMi41NjYgMTYwLjk1NSAyMzIuOTM0IDE2Mi40NzFIMjMyLjk5OEMyMzMuMzY4IDE2MC45OTcgMjMzLjg4NiAxNTkuMzk3IDIzNC41MzYgMTU3LjU1N0wyMzcuMTMzIDE1MC41MDNIMjM5LjUzNkwyNDAuNDQyIDE2NS4wODlIMjM4LjYwNEwyMzguMjM3IDE1OC42ODNaIgogICAgICAgICAgICAgICAgICAgICAgICAgIGZpbGw9IiNmZmZmZmYiLz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDxnPgogICAgICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0xNDYuNjA0IDI1MS4wODJINTcuODA0VjIyMi41MjFIODcuMjMwN1YxMzcuMjYySDY1LjkzMlYxMTAuODM4SDExNS42MjhWMjIyLjUyMUgxNDYuNjA0VjI1MS4wODJaTTEwMi4yMDQgNzguNzU0M0M0NS43NTg3IDc4Ljc1NDMgMCAxMjQuNTE0IDAgMTgwLjk2QzAgMjM3LjQwNiA0NS43NTg3IDI4My4xNjUgMTAyLjIwNCAyODMuMTY1QzE1OC42NTEgMjgzLjE2NSAyMDQuNDA5IDIzNy40MDYgMjA0LjQwOSAxODAuOTZDMjA0LjQwOSAxMjQuNTE0IDE1OC42NTEgNzguNzU0MyAxMDIuMjA0IDc4Ljc1NDNaIgogICAgICAgICAgICAgICAgICAgICAgICAgIGZpbGw9IiNmZmZmZmYiLz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+Cg=='
 		);
 		add_submenu_page(
 			self::CONFIGURATIONS_SUBMENU_SLUG,
@@ -114,7 +117,6 @@ class Admin {
 		$api_key_data = self::get_api_key_data();
 		if ( isset( $api_key_data['api_key'] ) ) {
 			$topics       = [
-
 				'order.created' => [
 					'name'        => 'Send new order to Shop1',
 					'option_name' => self::WC_ORDER_CREATED_WEBHOOK_ID_OPTION,
@@ -279,13 +281,11 @@ class Admin {
 	private static function verify_identifier( $identifier ) {
 		global $wpdb;
 
-		return $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}shop1_dropshipping_log
+		return $wpdb->get_var( $wpdb->prepare(
+			"SELECT id FROM {$wpdb->prefix}shop1_dropshipping_log
                 WHERE created_at >= (NOW() - INTERVAL 1 DAY) AND type = 'shop1_connect_request' AND identifier = %s",
-				$identifier
-			)
-		);
+			$identifier
+		) );
 	}
 
 	public static function shop1_connect_response() {
@@ -323,7 +323,7 @@ class Admin {
 
 	public static function cleanup_on_disconnect() {
 		self::remove_wc_order_webhooks();
-		self::remove_shop1_products( self::get_shop1_product_ids() );
+		self::schedule_delete_all_shop1_products();
 		self::remove_api_key_data();
 	}
 
@@ -344,7 +344,7 @@ class Admin {
 				self::log_to_db( 'shop1_disconnect_response', $api_key_data['identifier'], $body );
 				wp_send_json_success( [
 					'code'    => 'disconnected',
-					'message' => __( 'Disconnected successfully.', 'shop1-dropshipping' ),
+					'message' => 'Disconnected successfully.',
 				] );
 			}
 		}
@@ -382,7 +382,7 @@ class Admin {
 					self::remove_api_key_data();
 					wp_send_json_success( [
 						'code'    => 'not_found',
-						'message' => __( 'No matching record found.' ),
+						'message' => 'No matching record found.',
 					] );
 				}
 			}
@@ -405,18 +405,31 @@ class Admin {
 					return $body;
 				}
 
-				return new \WP_Error( 'authentication_failed', __( 'Failed to verify the authenticity of the request.' ) );
+				return new \WP_Error( 'authentication_failed', 'Failed to verify the authenticity of the request.' );
 			}
 		}
 
-		return new \WP_Error( 'invalid_json', __( 'Missing or invalid JSON body.' ) );
+		return new \WP_Error( 'invalid_json', 'Missing or invalid JSON body.' );
 	}
 
 	private static function insert_products( $products ) {
 		$errors               = [];
 		$inserted_product_ids = [];
 		foreach ( $products as $product ) {
-			$wc_product = new \WC_Product();
+			if ( empty( $product['Parent_SKU'] ) ) {
+				$wc_product = new \WC_Product_Simple();
+			} else {
+				$wc_product        = new \WC_Product_Variation();
+				$parent_product_id = wc_get_product_id_by_sku( $product['Parent_SKU'] );
+				if ( $parent_product_id <= 0 ) {
+					array_push( $errors, new \WP_Error(
+						'PARENT_NOT_FOUND',
+						"Parent product doesn't exist with SKU: {$product['Parent_SKU']}."
+					) );
+					continue;
+				}
+				$wc_product->set_parent_id( $parent_product_id );
+			}
 			try {
 				$wc_product->set_sku( $product['SKU'] );
 			} catch ( \WC_Data_Exception $e ) {
@@ -442,9 +455,10 @@ class Admin {
 			}
 			$wc_product->set_tag_ids( $tag_ids );
 			$wc_product->save();
-			$images = [];
+			$images        = [];
+			$wc_product_id = $wc_product->get_id();
 			foreach ( $product['Images'] as $image ) {
-				$image_attachment = new ImageAttachment( 0, $wc_product->get_id() );
+				$image_attachment = new ImageAttachment( 0, $wc_product_id );
 				try {
 					$image_attachment->upload_image_from_src( $image['url'] );
 				} catch ( \WC_REST_Exception $e ) {
@@ -460,7 +474,6 @@ class Admin {
 				$wc_product->set_gallery_image_ids( $images );
 			}
 			$wc_product->save();
-			$wc_product_id = $wc_product->get_id();
 			array_push( $inserted_product_ids, $wc_product_id );
 			self::log_to_db( 'shop1_add_product', $wc_product_id, $product );
 		}
@@ -488,7 +501,20 @@ class Admin {
 		);
 	}
 
-	private static function remove_shop1_products( $ids, $by_sku = false ) {
+	private static function schedule_delete_all_shop1_products() {
+		$product_ids = self::get_shop1_product_ids();
+		for ( $i = 0; $i < ceil( count( $product_ids ) / self::BATCH_PROCESSING_LIMIT ); $i ++ ) {
+			$current_batch_ids = array_slice( $product_ids, $i * self::BATCH_PROCESSING_LIMIT, self::BATCH_PROCESSING_LIMIT );
+			wp_schedule_single_event( time() + $i * 30, 'schedule_remove_shop1_products', [ $current_batch_ids, $i ] );
+		}
+		delete_option( self::SHOP1_PRODUCT_IDS_OPTION );
+	}
+
+	public static function schedule_remove_shop1_products( $ids, $batch_number = 0 ) {
+		self::remove_shop1_products( $ids, false, false );
+	}
+
+	private static function remove_shop1_products( $ids, $by_sku = false, $remove_ids = true ) {
 		$product_ids = [];
 		if ( $by_sku ) {
 			foreach ( $ids as $sku ) {
@@ -509,7 +535,9 @@ class Admin {
 			}
 		}
 		self::log_to_db( 'shop1_remove_products', 'rp' . count( $ids ) . time(), $product_ids );
-		self::remove_shop1_product_ids( $removed_product_ids );
+		if ( $remove_ids ) {
+			self::remove_shop1_product_ids( $removed_product_ids );
+		}
 	}
 
 	public static function shop1_product_hook() {
