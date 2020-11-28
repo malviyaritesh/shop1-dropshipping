@@ -88,7 +88,48 @@ class Admin {
 			'manage_options',
 			self::CONFIGURATIONS_SUBMENU_SLUG,
 			'',
-			'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU4IiBoZWlnaHQ9IjI4NCIgdmlld0JveD0iMCAwIDI1OCAyODQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8Zz4KICAgICAgICA8Zz4KICAgICAgICAgICAgPGc+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMjU3LjI5NCA4Ny44MDQ5QzI1Ny4yOTQgMTA3LjM3MyAyNDEuNDMzIDEyMy4yMzQgMjIxLjg2NSAxMjMuMjM0QzIwMi4yOTcgMTIzLjIzNCAxODYuNDM0IDEwNy4zNzMgMTg2LjQzNCA4Ny44MDQ5QzE4Ni40MzQgNjguMjM2OSAyMDIuMjk3IDUyLjM3NTYgMjIxLjg2NSA1Mi4zNzU2QzI0MS40MzMgNTIuMzc1NiAyNTcuMjk0IDY4LjIzNjkgMjU3LjI5NCA4Ny44MDQ5WiIKICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjZmZmZmZmIi8+CiAgICAgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTc0LjExMSAyMS41NjY3QzE3NC4xMTEgMzMuNDc3NCAxNjQuNDU2IDQzLjEzMjEgMTUyLjU0NSA0My4xMzIxQzE0MC42MzUgNDMuMTMyMSAxMzAuOTc5IDMzLjQ3NzQgMTMwLjk3OSAyMS41NjY3QzEzMC45NzkgOS42NTYwOCAxNDAuNjM1IDguMzk1MTFlLTA1IDE1Mi41NDUgOC4zOTUxMWUtMDVDMTY0LjQ1NiA4LjM5NTExZS0wNSAxNzQuMTExIDkuNjU2MDggMTc0LjExMSAyMS41NjY3WiIKICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjZmZmZmZmIi8+CiAgICAgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMjE3Ljk1OSAxNTIuMTA2SDIxMy41MjNWMTUwLjUwM0gyMjQuMzIxVjE1Mi4xMDZIMjE5Ljg2M1YxNjUuMDg4SDIxNy45NTlWMTUyLjEwNloiCiAgICAgICAgICAgICAgICAgICAgICAgICAgZmlsbD0iI2ZmZmZmZiIvPgogICAgICAgICAgICAgICAgPC9nPgogICAgICAgICAgICAgICAgPGc+CiAgICAgICAgICAgICAgICAgICAgPHBhdGggZD0iTTIzOC4yMzcgMTU4LjY4M0MyMzguMTI5IDE1Ni42NDkgMjM3Ljk5NyAxNTQuMjA0IDIzOC4wMjEgMTUyLjM4NUgyMzcuOTU0QzIzNy40NTcgMTU0LjA5NiAyMzYuODUyIDE1NS45MTMgMjM2LjExNiAxNTcuOTI3TDIzMy41NDEgMTY1LjAwMUgyMzIuMTEzTDIyOS43NTQgMTU4LjA1NUMyMjkuMDYxIDE1NiAyMjguNDc3IDE1NC4xMTcgMjI4LjA2NiAxNTIuMzg1SDIyOC4wMjRDMjI3Ljk4IDE1NC4yMDQgMjI3Ljg3MiAxNTYuNjQ5IDIyNy43NDIgMTU4LjgzNUwyMjcuMzUyIDE2NS4wODlIMjI1LjU1NkwyMjYuNTczIDE1MC41MDNIMjI4Ljk3NkwyMzEuNDYyIDE1Ny41NTdDMjMyLjA2OSAxNTkuMzU1IDIzMi41NjYgMTYwLjk1NSAyMzIuOTM0IDE2Mi40NzFIMjMyLjk5OEMyMzMuMzY4IDE2MC45OTcgMjMzLjg4NiAxNTkuMzk3IDIzNC41MzYgMTU3LjU1N0wyMzcuMTMzIDE1MC41MDNIMjM5LjUzNkwyNDAuNDQyIDE2NS4wODlIMjM4LjYwNEwyMzguMjM3IDE1OC42ODNaIgogICAgICAgICAgICAgICAgICAgICAgICAgIGZpbGw9IiNmZmZmZmYiLz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDxnPgogICAgICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0xNDYuNjA0IDI1MS4wODJINTcuODA0VjIyMi41MjFIODcuMjMwN1YxMzcuMjYySDY1LjkzMlYxMTAuODM4SDExNS42MjhWMjIyLjUyMUgxNDYuNjA0VjI1MS4wODJaTTEwMi4yMDQgNzguNzU0M0M0NS43NTg3IDc4Ljc1NDMgMCAxMjQuNTE0IDAgMTgwLjk2QzAgMjM3LjQwNiA0NS43NTg3IDI4My4xNjUgMTAyLjIwNCAyODMuMTY1QzE1OC42NTEgMjgzLjE2NSAyMDQuNDA5IDIzNy40MDYgMjA0LjQwOSAxODAuOTZDMjA0LjQwOSAxMjQuNTE0IDE1OC42NTEgNzguNzU0MyAxMDIuMjA0IDc4Ljc1NDNaIgogICAgICAgICAgICAgICAgICAgICAgICAgIGZpbGw9IiNmZmZmZmYiLz4KICAgICAgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+Cg=='
+			'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU4IiBoZWlnaHQ9I' .
+			'jI4NCIgdmlld0JveD0iMCAwIDI1OCAyODQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRw' .
+			'Oi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8Zz4KICAgICAgICA8Zz4KICAgICA' .
+			'gICAgICAgPGc+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgICAgICAgIC' .
+			'A8cGF0aCBkPSJNMjU3LjI5NCA4Ny44MDQ5QzI1Ny4yOTQgMTA3LjM3MyAyNDEuNDMzI' .
+			'DEyMy4yMzQgMjIxLjg2NSAxMjMuMjM0QzIwMi4yOTcgMTIzLjIzNCAxODYuNDM0IDEw' .
+			'Ny4zNzMgMTg2LjQzNCA4Ny44MDQ5QzE4Ni40MzQgNjguMjM2OSAyMDIuMjk3IDUyLjM' .
+			'3NTYgMjIxLjg2NSA1Mi4zNzU2QzI0MS40MzMgNTIuMzc1NiAyNTcuMjk0IDY4LjIzNj' .
+			'kgMjU3LjI5NCA4Ny44MDQ5WiIKICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsP' .
+			'SIjZmZmZmZmIi8+CiAgICAgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8' .
+			'Zz4KICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNMTc0LjExMSAyMS41NjY3QzE' .
+			'3NC4xMTEgMzMuNDc3NCAxNjQuNDU2IDQzLjEzMjEgMTUyLjU0NSA0My4xMzIxQzE0MC' .
+			'42MzUgNDMuMTMyMSAxMzAuOTc5IDMzLjQ3NzQgMTMwLjk3OSAyMS41NjY3QzEzMC45N' .
+			'zkgOS42NTYwOCAxNDAuNjM1IDguMzk1MTFlLTA1IDE1Mi41NDUgOC4zOTUxMWUtMDVD' .
+			'MTY0LjQ1NiA4LjM5NTExZS0wNSAxNzQuMTExIDkuNjU2MDggMTc0LjExMSAyMS41NjY' .
+			'3WiIKICAgICAgICAgICAgICAgICAgICAgICAgICBmaWxsPSIjZmZmZmZmIi8+CiAgIC' .
+			'AgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8Zz4KICAgICAgICAgICAgI' .
+			'CAgICAgICA8cGF0aCBkPSJNMjE3Ljk1OSAxNTIuMTA2SDIxMy41MjNWMTUwLjUwM0gy' .
+			'MjQuMzIxVjE1Mi4xMDZIMjE5Ljg2M1YxNjUuMDg4SDIxNy45NTlWMTUyLjEwNloiCiA' .
+			'gICAgICAgICAgICAgICAgICAgICAgICAgZmlsbD0iI2ZmZmZmZiIvPgogICAgICAgIC' .
+			'AgICAgICAgPC9nPgogICAgICAgICAgICAgICAgPGc+CiAgICAgICAgICAgICAgICAgI' .
+			'CAgPHBhdGggZD0iTTIzOC4yMzcgMTU4LjY4M0MyMzguMTI5IDE1Ni42NDkgMjM3Ljk5' .
+			'NyAxNTQuMjA0IDIzOC4wMjEgMTUyLjM4NUgyMzcuOTU0QzIzNy40NTcgMTU0LjA5NiA' .
+			'yMzYuODUyIDE1NS45MTMgMjM2LjExNiAxNTcuOTI3TDIzMy41NDEgMTY1LjAwMUgyMz' .
+			'IuMTEzTDIyOS43NTQgMTU4LjA1NUMyMjkuMDYxIDE1NiAyMjguNDc3IDE1NC4xMTcgM' .
+			'jI4LjA2NiAxNTIuMzg1SDIyOC4wMjRDMjI3Ljk4IDE1NC4yMDQgMjI3Ljg3MiAxNTYu' .
+			'NjQ5IDIyNy43NDIgMTU4LjgzNUwyMjcuMzUyIDE2NS4wODlIMjI1LjU1NkwyMjYuNTc' .
+			'zIDE1MC41MDNIMjI4Ljk3NkwyMzEuNDYyIDE1Ny41NTdDMjMyLjA2OSAxNTkuMzU1ID' .
+			'IzMi41NjYgMTYwLjk1NSAyMzIuOTM0IDE2Mi40NzFIMjMyLjk5OEMyMzMuMzY4IDE2M' .
+			'C45OTcgMjMzLjg4NiAxNTkuMzk3IDIzNC41MzYgMTU3LjU1N0wyMzcuMTMzIDE1MC41' .
+			'MDNIMjM5LjUzNkwyNDAuNDQyIDE2NS4wODlIMjM4LjYwNEwyMzguMjM3IDE1OC42ODN' .
+			'aIgogICAgICAgICAgICAgICAgICAgICAgICAgIGZpbGw9IiNmZmZmZmYiLz4KICAgIC' .
+			'AgICAgICAgICAgIDwvZz4KICAgICAgICAgICAgICAgIDxnPgogICAgICAgICAgICAgI' .
+			'CAgICAgIDxwYXRoIGQ9Ik0xNDYuNjA0IDI1MS4wODJINTcuODA0VjIyMi41MjFIODcu' .
+			'MjMwN1YxMzcuMjYySDY1LjkzMlYxMTAuODM4SDExNS42MjhWMjIyLjUyMUgxNDYuNjA' .
+			'0VjI1MS4wODJaTTEwMi4yMDQgNzguNzU0M0M0NS43NTg3IDc4Ljc1NDMgMCAxMjQuNT' .
+			'E0IDAgMTgwLjk2QzAgMjM3LjQwNiA0NS43NTg3IDI4My4xNjUgMTAyLjIwNCAyODMuM' .
+			'TY1QzE1OC42NTEgMjgzLjE2NSAyMDQuNDA5IDIzNy40MDYgMjA0LjQwOSAxODAuOTZD' .
+			'MjA0LjQwOSAxMjQuNTE0IDE1OC42NTEgNzguNzU0MyAxMDIuMjA0IDc4Ljc1NDNaIgo' .
+			'gICAgICAgICAgICAgICAgICAgICAgICAgIGZpbGw9IiNmZmZmZmYiLz4KICAgICAgIC' .
+			'AgICAgICAgIDwvZz4KICAgICAgICAgICAgPC9nPgogICAgICAgIDwvZz4KICAgIDwvZ' .
+			'z4KPC9zdmc+Cg=='
 		);
 		add_submenu_page(
 			self::CONFIGURATIONS_SUBMENU_SLUG,
@@ -242,14 +283,14 @@ class Admin {
 		return $should_deliver;
 	}
 
-	private static function log_to_db( $type, $identifier, $data, $complex_data = true ) {
+	private static function log_to_db( $type, $identifier, $data ) {
 		global $wpdb;
 
 		return $wpdb->insert( "{$wpdb->prefix}shop1_dropshipping_log", [
 			'user_id'    => get_current_user_id(),
 			'type'       => $type,
 			'identifier' => $identifier,
-			'payload'    => $complex_data ? serialize( $data ) : $data,
+			'payload'    => maybe_serialize( $data ),
 		] );
 	}
 
@@ -391,7 +432,57 @@ class Admin {
 	}
 
 	public static function shop1_order_hook() {
-		// Todo
+		$body   = self::parse_and_verify_json_body();
+		$errors = [];
+		if ( is_wp_error( $body ) ) {
+			array_push( $errors, $body );
+			wp_send_json_error( $errors );
+		}
+
+		if ( isset( $body['order']['order_id'], $body['order']['status'], $body['order'] ) ) {
+			$wc_order = wc_get_order( $body['order']['order_id'] );
+			if ( $wc_order ) {
+				if ( isset( $body['order']['shipping_details']['tracking_number'] ) ) {
+					if ( function_exists( 'wc_st_add_tracking_number' ) ) {
+						wc_st_add_tracking_number(
+							$wc_order->get_id(),
+							$body['order']['shipping_details']['tracking_number'],
+							$body['order']['shipping_details']['carrier'],
+							$body['order']['shipping_details']['shipping_date']
+						);
+					} else {
+						$wc_order->add_order_note(
+							"Shop1 added tracking number:" . PHP_EOL .
+							"Tracking Number: {$body['order']['shipping_details']['tracking_number']}" . PHP_EOL .
+							"Carrier: {$body['order']['shipping_details']['carrier']}" . PHP_EOL .
+							"Shipping Date: {$body['order']['shipping_details']['shipping_date']}"
+						);
+					}
+				}
+				$updated = $wc_order->update_status(
+					$body['order']['status'],
+					__( 'Order status updated by Shop1 webhook', 'shop1-dropshipping' ),
+					true
+				);
+				if ( $updated ) {
+					$wc_order->save();
+					wp_send_json_success();
+				} else {
+					array_push( $errors, new \WP_Error(
+						'order_status_update_failed',
+						"Order couldn't be updated to status: ${$body['order']['status']}."
+					) );
+				}
+			} else {
+				array_push( $errors, new \WP_Error(
+					'order_not_found',
+					"WC order with id {$body['order']['order_id']} couldn't be found."
+				) );
+			}
+		} else {
+			array_push( $errors, new \WP_Error( 'invalid_body', 'Missing or invalid body.' ) );
+		}
+		wp_send_json_error( $errors );
 	}
 
 	private static function parse_and_verify_json_body() {
@@ -423,7 +514,7 @@ class Admin {
 				$parent_product_id = wc_get_product_id_by_sku( $product['Parent_SKU'] );
 				if ( $parent_product_id <= 0 ) {
 					array_push( $errors, new \WP_Error(
-						'PARENT_NOT_FOUND',
+						'parent_not_found',
 						"Parent product doesn't exist with SKU: {$product['Parent_SKU']}."
 					) );
 					continue;
@@ -545,10 +636,11 @@ class Admin {
 		$errors = [];
 		if ( is_wp_error( $body ) ) {
 			array_push( $errors, $body );
+			wp_send_json_error( $errors );
 		}
 		if ( count( $body['products'] ) > self::BATCH_PROCESSING_LIMIT ) {
 			array_push( $errors, new \WP_Error(
-					'BATCH_LIMIT_EXCEEDED',
+					'batch_limit_exceeded',
 					'More than ' . self::BATCH_PROCESSING_LIMIT . ' products are not allowed.' )
 			);
 			wp_send_json_error( $errors );
