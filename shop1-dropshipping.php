@@ -4,7 +4,7 @@
  * Plugin URI: http://shop1.com/
  * Description: WooCommerce integration for Shop1.
  * Version: 0.0.2
- * Author: shop1.com
+ * Author: Shop1.com
  * Author URI: http://shop1.com/
  * Text Domain: shop1-dropshipping
  * Domain Path: /languages

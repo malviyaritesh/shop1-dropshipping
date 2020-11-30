@@ -19,16 +19,10 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', SHOP1_DROPSHIPPING_P
 			    "into your website. This should only take a minute!", 'shop1-dropshipping' );
 			?>
         </p>
-		<?php
-		$shop1_connect_url = add_query_arg( [
-			'action' => 'connect-to-shop1',
-			'_nonce' => wp_create_nonce( 'connect-to-shop1' ),
-		], admin_url( 'admin-post.php' ) );
-		?>
-        <a href="<?php echo $shop1_connect_url; ?>"
-           class="button button-primary">
+        <button class="button button-primary connect"
+                data-url="<?php echo esc_url( Admin::get_shop1_connect_url() ); ?>">
 			<?php _e( 'Connect to Shop1', 'shop1-dropshipping' ); ?>
-        </a>
+        </button>
     </section>
     <section class="testing">
         <span class="spinner is-active"></span>
@@ -44,7 +38,7 @@ $shop1_logo = plugins_url( '/assets/images/shop1-logo.png', SHOP1_DROPSHIPPING_P
     </section>
     <section class="connected" style="display: none;">
         <p>
-			<?php _e( 'Your website is connected to your Shop1 account' ); ?>
+			<?php _e( 'This website is connected to your Shop1 account' ); ?>
             &lpar;<strong class="email"></strong>&rpar;
         </p>
         <button class="button button-secondary disconnect">

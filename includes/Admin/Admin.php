@@ -8,6 +8,7 @@ use Automattic\WooCommerce\RestApi\Utilities\ImageAttachment;
 
 class Admin {
 
+	const SHOP1_CONNECT_NONCE_OPTION = 'shop1-dropshipping_connect_nonce';
 	const SHOP1_API_KEY_OPTION = 'shop1-dropshipping_api_key';
 	const WC_ORDER_CREATED_WEBHOOK_ID_OPTION = 'shop1-dropshipping_order_created_webhook_id';
 	const WC_ORDER_UPDATED_WEBHOOK_ID_OPTION = 'shop1-dropshipping_order_updated_webhook_id';
@@ -23,8 +24,6 @@ class Admin {
 		add_action( 'admin_menu', [ __CLASS__, 'shop1_admin_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'admin_print_footer_scripts', [ __CLASS__, 'print_footer_scripts' ] );
-
-		add_action( 'admin_post_connect-to-shop1', [ __CLASS__, 'handle_shop1_connect' ] );
 
 		add_action( 'admin_post_shop1-connect-response', [ __CLASS__, 'shop1_connect_response' ] );
 		add_action( 'admin_post_nopriv_shop1-connect-response', [ __CLASS__, 'shop1_connect_response' ] );
@@ -187,7 +186,7 @@ class Admin {
 				$webhook->set_delivery_url( $delivery_url );
 				$webhook->set_status( 'active' );
 				$webhook->save();
-				update_option( $val['option_name'], $webhook->get_id() );
+				update_option( $val['option_name'], $webhook->get_id(), false );
 			}
 		}
 	}
@@ -294,43 +293,28 @@ class Admin {
 		] );
 	}
 
-	private static function get_unique_identifier() {
+	public static function get_unique_identifier() {
 		return uniqid( wp_rand( 10000, 99999 ) );
 	}
 
-	public static function handle_shop1_connect() {
-		if ( isset( $_GET['_nonce'] ) && wp_verify_nonce( $_GET['_nonce'], 'connect-to-shop1' ) ) {
-			$identifier = self::get_unique_identifier();
-			$args       = [
-				'shop_name'           => get_bloginfo( 'name' ),
-				'platform'            => 'WordPress/WooCommerce',
-				'platform_url'        => home_url(),
-				'scopes'              => 'read,write',
-				'redirect_url'        => admin_url( 'admin-post.php?action=shop1-connect-response' ),
-				'state'               => $identifier,
-				'product_webhook_url' => admin_url( 'admin-ajax.php?action=shop1-product-hook' ),
-				'order_webhook_url'   => admin_url( 'admin-ajax.php?action=shop1-order-hook' ),
-			];
-			self::log_to_db( 'shop1_connect_request', $identifier, $args );
-			wp_redirect( add_query_arg( $args, 'https://admin.shop1.com/stores/third-party/connect' ) );
-			exit;
-		} else {
-			wp_die( 'Invalid link.' );
-		}
-	}
+	public static function get_shop1_connect_url() {
+		$identifier = self::get_unique_identifier();
+		update_option( self::SHOP1_CONNECT_NONCE_OPTION, $identifier, false );
 
-	private static function verify_identifier( $identifier ) {
-		global $wpdb;
-
-		return $wpdb->get_var( $wpdb->prepare(
-			"SELECT id FROM {$wpdb->prefix}shop1_dropshipping_log
-                WHERE created_at >= (NOW() - INTERVAL 1 DAY) AND type = 'shop1_connect_request' AND identifier = %s",
-			$identifier
-		) );
+		return add_query_arg( [
+			'shop_name'           => get_bloginfo( 'name' ),
+			'platform'            => 'WordPress/WooCommerce',
+			'platform_url'        => home_url(),
+			'scopes'              => 'read,write',
+			'redirect_url'        => admin_url( 'admin-post.php?action=shop1-connect-response' ),
+			'state'               => $identifier,
+			'product_webhook_url' => admin_url( 'admin-ajax.php?action=shop1-product-hook' ),
+			'order_webhook_url'   => admin_url( 'admin-ajax.php?action=shop1-order-hook' ),
+		], 'https://admin.shop1.com/stores/third-party/connect' );
 	}
 
 	public static function shop1_connect_response() {
-		if ( isset( $_GET['state'] ) && self::verify_identifier( $_GET['state'] )
+		if ( isset( $_GET['state'] ) && get_option( self::SHOP1_CONNECT_NONCE_OPTION ) === $_GET['state']
 		     && ! empty( $_GET['user_email'] )
 		     && ! empty( $_GET['api_key'] )
 		) {
@@ -339,11 +323,15 @@ class Admin {
 				'user_email' => $_GET['user_email'],
 				'identifier' => $_GET['state'],
 			];
-			update_option( self::SHOP1_API_KEY_OPTION, $data );
+			update_option( self::SHOP1_API_KEY_OPTION, $data, false );
 			self::create_wc_order_webhooks();
 			self::log_to_db( 'shop1_connect_response', $_GET['state'], $data );
-			wp_redirect( admin_url( 'admin.php?page=' . self::CONFIGURATIONS_SUBMENU_SLUG ) );
-			exit;
+			?>
+            <script>
+                window.opener.location.reload();
+                window.close();
+            </script>
+			<?php
 		} else {
 			wp_die( 'Invalid or malformed request.' );
 		}
@@ -578,17 +566,21 @@ class Admin {
 	}
 
 	private static function insert_shop1_product_ids( $product_ids ) {
-		return update_option( self::SHOP1_PRODUCT_IDS_OPTION,
+		return update_option(
+			self::SHOP1_PRODUCT_IDS_OPTION,
 			array_keys(
 				array_fill_keys( self::get_shop1_product_ids(), true ) +
 				array_fill_keys( $product_ids, true )
-			)
+			),
+			false
 		);
 	}
 
 	private static function remove_shop1_product_ids( $product_ids ) {
-		return update_option( self::SHOP1_PRODUCT_IDS_OPTION,
-			array_diff( self::get_shop1_product_ids(), $product_ids )
+		return update_option(
+			self::SHOP1_PRODUCT_IDS_OPTION,
+			array_diff( self::get_shop1_product_ids(), $product_ids ),
+			false
 		);
 	}
 
