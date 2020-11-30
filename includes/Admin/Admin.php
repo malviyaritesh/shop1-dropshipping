@@ -43,7 +43,6 @@ class Admin {
 		add_filter( 'plugin_action_links_' . plugin_basename( SHOP1_DROPSHIPPING_PLUGIN_FILE ), [ __CLASS__, 'add_plugin_action_links' ] );
 
 		add_filter( 'woocommerce_webhook_payload', [ __CLASS__, 'filter_wc_webhook_payload' ], 10, 4 );
-		add_filter( 'woocommerce_webhook_should_deliver', [ __CLASS__, 'filter_wc_webhook_should_deliver' ], 10, 3 );
 	}
 
 	public static function render_missing_or_outdated_wc_notice() {
@@ -224,11 +223,11 @@ class Admin {
 		if ( self::is_active_shop1_webhook( $webhook_id )
 		     && $resource === 'order'
 		     && isset( $payload['id'], $payload['order_key'], $payload['status'] )
-		     && 'completed' === $payload['status']
 		) {
 			$identifier = $payload['order_key'];
 			$payload    = [
 				'platform_order_id'   => $payload['id'],
+				'status'              => $payload['status'],
 				'customer_first_name' => $payload['billing']['first_name'],
 				'customer_last_name'  => $payload['billing']['last_name'],
 				'customer_email'      => $payload['billing']['email'],
@@ -269,17 +268,6 @@ class Admin {
 		}
 
 		return $payload;
-	}
-
-	public static function filter_wc_webhook_should_deliver( $should_deliver, \WC_Webhook $webhook, $arg ) {
-		if ( self::is_active_shop1_webhook( $webhook->get_id() ) ) {
-			$order = wc_get_order( $arg );
-			if ( is_a( $order, \WC_Order::class ) && 'completed' !== $order->get_status() ) {
-				$should_deliver = false;
-			}
-		}
-
-		return $should_deliver;
 	}
 
 	private static function log_to_db( $type, $identifier, $data ) {
