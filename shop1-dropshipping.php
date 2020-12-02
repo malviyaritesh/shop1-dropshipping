@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Shop1 Dropshipping
- * Plugin URI: http://shop1.com/
+ * Plugin URI: https://wordpress.org/plugins/shop1-dropshipping
  * Description: WooCommerce integration for Shop1.
- * Version: 0.0.2
+ * Version: 1.0.0
  * Author: Shop1.com
  * Author URI: http://shop1.com/
  * Text Domain: shop1-dropshipping
@@ -20,7 +20,6 @@ use Shop1Dropshipping\Shop1Dropshipping;
 defined( 'ABSPATH' ) || exit;
 
 define( 'SHOP1_DROPSHIPPING_PLUGIN_FILE', __FILE__ );
-define( 'SHOP1_DROPSHIPPING_VERSION', '0.0.2' );
 
 require_once __DIR__ . '/vendor/autoload.php';
 

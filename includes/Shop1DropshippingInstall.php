@@ -7,7 +7,7 @@ namespace Shop1Dropshipping;
 use Shop1Dropshipping\Admin\Admin;
 
 class Shop1DropshippingInstall {
-	const DB_VERSION = '0.0.5';
+	const DB_VERSION = '0.0.6';
 
 	const ACTIVATION_TRANSIENT = 'shop1-dropshipping_activating';
 	const DB_VERSION_OPTION = 'shop1-dropshipping_db_version';
@@ -49,7 +49,7 @@ CREATE TABLE {$wpdb->prefix}shop1_dropshipping_log (
 	user_id bigint NOT NULL default 0,
 	type varchar(64) NOT NULL,
 	identifier varchar(64) NOT NULL,
-	payload text,
+	payload mediumtext,
 	created_at timestamp,
 	PRIMARY KEY  (id),
 	KEY identifier (identifier),

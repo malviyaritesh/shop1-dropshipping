@@ -65,7 +65,7 @@ class Admin {
 				'shop1-dropshipping-configuration',
 				plugins_url( '/assets/scripts/admin/page-configuration.js', SHOP1_DROPSHIPPING_PLUGIN_FILE ),
 				[ 'jquery' ],
-				'1.0',
+				'1.0.1',
 				true
 			);
 		}
