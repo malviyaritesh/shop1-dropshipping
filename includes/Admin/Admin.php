@@ -479,29 +479,27 @@ class Admin {
 		return new \WP_Error( 'invalid_json', 'Missing or invalid JSON body.' );
 	}
 
-	private static function insert_products( $products ) {
+	private static function insert_products( $products, $is_update = false ) {
 		$errors               = [];
 		$inserted_product_ids = [];
 		foreach ( $products as $product ) {
-			if ( empty( $product['Parent_SKU'] ) ) {
-				$wc_product = new \WC_Product_Simple();
-			} else {
-				$wc_product        = new \WC_Product_Variation();
-				$parent_product_id = wc_get_product_id_by_sku( $product['Parent_SKU'] );
-				if ( $parent_product_id <= 0 ) {
+			if ( $is_update ) {
+				$wc_product = wc_get_product( wc_get_product_id_by_sku( $product['SKU'] ) );
+				if ( ! is_a( $wc_product, \WC_Product::class ) ) {
 					array_push( $errors, new \WP_Error(
-						'parent_not_found',
-						"Parent product doesn't exist with SKU: {$product['Parent_SKU']}."
+						'product_not_found',
+						"Product with SKU: {$product['SKU']} couldn't be found."
 					) );
 					continue;
 				}
-				$wc_product->set_parent_id( $parent_product_id );
-			}
-			try {
-				$wc_product->set_sku( $product['SKU'] );
-			} catch ( \WC_Data_Exception $e ) {
-				array_push( $errors, $e->getMessage() );
-				continue;
+			} else {
+				$wc_product = new \WC_Product_Simple();
+				try {
+					$wc_product->set_sku( $product['SKU'] );
+				} catch ( \WC_Data_Exception $e ) {
+					array_push( $errors, $e->getMessage() );
+					continue;
+				}
 			}
 			$wc_product->set_name( $product['Name'] );
 			$wc_product->set_description( $product['Description'] );
@@ -541,10 +539,14 @@ class Admin {
 				$wc_product->set_gallery_image_ids( $images );
 			}
 			$wc_product->save();
-			array_push( $inserted_product_ids, $wc_product_id );
-			self::log_to_db( 'shop1_add_product', $wc_product_id, $product );
+			if ( ! $is_update ) {
+				array_push( $inserted_product_ids, $wc_product_id );
+			}
+			self::log_to_db( $is_update ? 'shop1_update_product' : 'shop1_add_product', $wc_product_id, $product );
 		}
-		self::insert_shop1_product_ids( $inserted_product_ids );
+		if ( ! empty( $inserted_product_ids ) ) {
+			self::insert_shop1_product_ids( $inserted_product_ids );
+		}
 
 		return $errors;
 	}
@@ -605,7 +607,7 @@ class Admin {
 				array_push( $removed_product_ids, $wc_product->get_id() );
 			}
 		}
-		self::log_to_db( 'shop1_remove_products', 'rp' . count( $ids ) . time(), $product_ids );
+		self::log_to_db( 'shop1_remove_products', 'rp-' . count( $ids ) . '-' . time(), $product_ids );
 		if ( $remove_ids ) {
 			self::remove_shop1_product_ids( $removed_product_ids );
 		}
@@ -627,6 +629,8 @@ class Admin {
 		}
 		if ( 'addProduct' === $body['action'] ) {
 			array_merge( $errors, self::insert_products( $body['products'] ) );
+		} elseif ( 'updateProduct' === $body['action'] ) {
+			array_merge( $errors, self::insert_products( $body['products'], true ) );
 		} elseif ( 'removeProduct' === $body['action'] ) {
 			self::remove_shop1_products( $body['products'], true );
 		}

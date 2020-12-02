@@ -42,7 +42,9 @@ jQuery(document).ready(function ($) {
     });
 
     $container.find('.connected button.disconnect').on('click', function (e) {
-        if (confirm("Are you sure you'd like to disconnect your Shop1 account?")) {
+        const disconnectMessage = 'Disconnecting from Shop1 will schedule to remove products from your WC store' +
+            " automatically which were added by Shop1. Are you sure you'd like to disconnect your Shop1 account?"
+        if (confirm(disconnectMessage)) {
             $(this).text('Disconnecting...').prop('disabled', true);
             $.get(window.ajaxurl, {
                 action: 'shop1-disconnect',
@@ -50,8 +52,6 @@ jQuery(document).ready(function ($) {
                 if (data && data.success && data.data.code === 'disconnected') {
                     window.location.reload();
                 }
-            }).fail(function () {
-                console.error('This failed miserably');
             });
         }
         return false;
