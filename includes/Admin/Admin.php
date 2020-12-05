@@ -302,18 +302,18 @@ class Admin {
 	}
 
 	public static function shop1_connect_response() {
-		if ( isset( $_GET['state'] ) && get_option( self::SHOP1_CONNECT_NONCE_OPTION ) === $_GET['state']
-		     && ! empty( $_GET['user_email'] )
-		     && ! empty( $_GET['api_key'] )
+		if ( isset( $_GET['api_key'], $_GET['state'], $_GET['user_email'] )
+		     && get_option( self::SHOP1_CONNECT_NONCE_OPTION )
+		        === ( $identifier = sanitize_text_field( $_GET['state'] ) )
 		) {
 			$data = [
-				'api_key'    => $_GET['api_key'],
-				'user_email' => $_GET['user_email'],
-				'identifier' => $_GET['state'],
+				'api_key'    => sanitize_text_field( $_GET['api_key'] ),
+				'user_email' => sanitize_email( $_GET['user_email'] ),
+				'identifier' => $identifier,
 			];
 			update_option( self::SHOP1_API_KEY_OPTION, $data, false );
 			self::create_wc_order_webhooks();
-			self::log_to_db( 'shop1_connect_response', $_GET['state'], $data );
+			self::log_to_db( 'shop1_connect_response', $identifier, $data );
 			?>
             <script>
                 window.opener.location.reload();
