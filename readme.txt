@@ -6,7 +6,7 @@ Tags: shop1, woocommerce, shipping, drop shipping, integration
 Requires at least: 5.3
 Tested up to: 5.6
 Requires PHP: 7.0
-Stable tag: trunk
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,5 +40,5 @@ Use Shop1's proprietary filters to discover new trends and hot-selling products 
 4. Sync your products and orders.
 
 == Changelog ==
-= 0.1.0 =
+= 1.0.0 =
 * First version.
